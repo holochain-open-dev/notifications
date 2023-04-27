@@ -658,6 +658,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hc_zome_notifications"
+version = "0.0.1"
+dependencies = [
+ "hc_zome_notifications_integrity",
+ "hdk",
+ "serde",
+]
+
+[[package]]
 name = "hc_zome_notifications_integrity"
 version = "0.0.1"
 dependencies = [
