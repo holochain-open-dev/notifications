@@ -1,11 +1,11 @@
 [package]
-name = "notifications"
+name = "hc_zome_notifications"
 version = "0.0.1"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-name = "notifications"
+name = "hc_zome_notifications"
 
 [dependencies]
 hdk = { workspace = true }
