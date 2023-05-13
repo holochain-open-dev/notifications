@@ -6,16 +6,16 @@ use hdk::prelude::*;
 use notifications_integrity::*;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    let path = Path::from(format!("all_notifiers"));
-    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    typed_path.ensure()?;
-    let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    create_link(
-        typed_path.path_entry_hash()?,
-        my_agent_pub_key,
-        LinkTypes::AnchorToNotifiers,
-        (),
-    )?;
+    // let path = Path::from(format!("all_notifiers"));
+    // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
+    // typed_path.ensure()?;
+    // let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    // create_link(
+    //     typed_path.path_entry_hash()?,
+    //     my_agent_pub_key,
+    //     LinkTypes::AnchorToNotifiers,
+    //     (),
+    // )?;
     Ok(InitCallbackResult::Pass)
 }
 #[derive(Serialize, Deserialize, Debug)]
@@ -33,7 +33,35 @@ pub enum Signal {
 }
 #[hdk_extern]
 pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
-    emit_signal(data)?;
+    // emit_signal(data)?;
+    let zome_call_response = call_remote(
+        agent_info().unwrap().agent_latest_pubkey.into(),
+        "notifications",
+        FunctionName(String::from("validate_notification_tip")),
+        None,
+        data,
+    )?;
+    match zome_call_response {
+        ZomeCallResponse::Ok(result) => {
+            let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+            create_link(me, me, LinkTypes::NotificantToNotifiers, ())?;
+            
+            Ok(())
+        },
+        ZomeCallResponse::NetworkError(err) => {
+        //     Err(
+        //         wasm_error!(
+        //             WasmErrorInner::Guest(format!("There was a network error: {:?}",
+        //             err))
+        //         ),
+        //     )
+        // }
+        // _ => {
+        //     Err(
+        //         wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
+        //     )
+        // }
+        }
     Ok(())
 }
 #[hdk_extern]
