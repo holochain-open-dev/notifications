@@ -44,12 +44,23 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
     if let ZomeCallResponse::Ok(result) = zome_call_response {
         let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
         // let b = result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap();
-        // if b ==  {
+        let b = result.decode().map_err(|err| wasm_error!(String::from(err)))?;
+        emit_signal(b)?;
+
+        // if let Some(result_bool) = result.into_vec().get(0).and_then(|bytes| bytes.into()) {
+        // if let Some(result_bool) = result.into_vec().get(0) {
+        //         let serialized_bytes = SerializedBytes::from(result_bool);
+        //     if result_bool == true {
+        //         create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
+        //     }
+        // }
+
+        // if result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap() == true {
         //     create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
         // }
         // if let Some(result_bool) = result? {//.into_vec().get(0).and_then(|bytes| bytes.into()) {
             // emit_signal(result.into_vec().get(0))?;
-            emit_signal(result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap())?;
+            // emit_signal(result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap())?;
         // } else {
             // Handle deserialization error for bool
         // }
