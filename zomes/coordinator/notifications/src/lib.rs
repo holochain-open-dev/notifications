@@ -32,7 +32,7 @@ pub enum Signal {
     EntryDeleted { action: SignedActionHashed, original_app_entry: EntryTypes },
 }
 #[hdk_extern]
-pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
+pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<bool> {
     // emit_signal(data)?;
     let zome_call_response = call_remote(
         agent_info().unwrap().agent_latest_pubkey.into(),
@@ -41,11 +41,29 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
         None,
         data,
     )?;
+
+    match zome_call_response {
+        ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
+          let entry_hash: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+        //   Ok(entry_hash)
+            emit_signal(entry_hash)?;
+        },
+        ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => { // Callee deleted the capability grant
+        //   Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
+        },
+        _ => {
+        //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
+        },
+    }
+
+
     if let ZomeCallResponse::Ok(result) = zome_call_response {
-        let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+        // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+
+
         // let b = result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap();
-        let b = result.decode().map_err(|err| wasm_error!(String::from(err)))?;
-        emit_signal(b)?;
+        // let b = result.decode().map_err(|err| wasm_error!(String::from(err)))?;
+        // emit_signal(b)?;
 
         // if let Some(result_bool) = result.into_vec().get(0).and_then(|bytes| bytes.into()) {
         // if let Some(result_bool) = result.into_vec().get(0) {
