@@ -41,27 +41,33 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
         None,
         data,
     )?;
-    match zome_call_response {
-        ZomeCallResponse::Ok(result) => {
-            let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-            create_link(me, me, LinkTypes::NotificantToNotifiers, ())?;
+    if let ZomeCallResponse::Ok(result) = zome_call_response {
+        let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+        create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
+    }
+
+    // match zome_call_response {
+    //     ZomeCallResponse::Ok(result) => {
+    //         let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    //         create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
             
-            Ok(())
-        },
-        ZomeCallResponse::NetworkError(err) => {
-        //     Err(
-        //         wasm_error!(
-        //             WasmErrorInner::Guest(format!("There was a network error: {:?}",
-        //             err))
-        //         ),
-        //     )
-        // }
-        // _ => {
-        //     Err(
-        //         wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
-        //     )
-        // }
-        }
+    //         // Ok(())
+    //     }
+    //     ZomeCallResponse::NetworkError(err) => {
+    //         Err(
+    //             Ok(())
+    //             // wasm_error!(
+    //             //     WasmErrorInner::Guest(format!("There was a network error: {:?}",
+    //             //     err))
+    //             // ),
+    //         )
+    //     }
+    //     _ => {
+    //         Err(
+    //             // wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
+    //         )
+    //     }
+    //     }
     Ok(())
 }
 #[hdk_extern]
