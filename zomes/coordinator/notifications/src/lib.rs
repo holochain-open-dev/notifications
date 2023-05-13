@@ -6,6 +6,16 @@ use hdk::prelude::*;
 use notifications_integrity::*;
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    let path = Path::from(format!("all_notifiers"));
+    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
+    typed_path.ensure()?;
+    let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    create_link(
+        typed_path.path_entry_hash()?,
+        my_agent_pub_key,
+        LinkTypes::AnchorToNotifiers,
+        (),
+    )?;
     Ok(InitCallbackResult::Pass)
 }
 #[derive(Serialize, Deserialize, Debug)]
@@ -20,20 +30,6 @@ pub enum Signal {
         original_app_entry: EntryTypes,
     },
     EntryDeleted { action: SignedActionHashed, original_app_entry: EntryTypes },
-}
-#[hdk_extern]
-fn __init__(_: ()) -> ExternResult<()> {
-    let path = Path::from(format!("all_notifiers"));
-    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    typed_path.ensure()?;
-    let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    create_link(
-        typed_path.path_entry_hash()?,
-        my_agent_pub_key,
-        LinkTypes::AnchorToNotifiers,
-        (),
-    )?;
-    Ok(())
 }
 #[hdk_extern]
 pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
