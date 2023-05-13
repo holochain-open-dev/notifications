@@ -32,7 +32,7 @@ pub enum Signal {
     EntryDeleted { action: SignedActionHashed, original_app_entry: EntryTypes },
 }
 #[hdk_extern]
-pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<bool> {
+pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
     // emit_signal(data)?;
     let zome_call_response = call_remote(
         agent_info().unwrap().agent_latest_pubkey.into(),
@@ -57,7 +57,7 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<bool> {
     }
 
 
-    if let ZomeCallResponse::Ok(result) = zome_call_response {
+    // if let ZomeCallResponse::Ok(result) = zome_call_response {
         // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
 
 
@@ -82,9 +82,9 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<bool> {
         // } else {
             // Handle deserialization error for bool
         // }
-    } else {
-        emit_signal("faileddd")?;
-    }
+    // } else {
+    //     emit_signal("faileddd")?;
+    // }
     Ok(())
 }
 #[hdk_extern]
