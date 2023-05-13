@@ -43,12 +43,13 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
     )?;
     if let ZomeCallResponse::Ok(result) = zome_call_response {
         let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-        if let Some(result_bool) = result.into_vec().get(0).and_then(|bytes| bytes.into()) {
-            emit_signal(result_bool)?;
-        } else {
+        // if let Some(result_bool) = result? {//.into_vec().get(0).and_then(|bytes| bytes.into()) {
+            emit_signal(result)?;
+        // } else {
             // Handle deserialization error for bool
-            emit_signal("faileddd")?;
-        }
+        // }
+    } else {
+        emit_signal("faileddd")?;
     }
     Ok(())
 }
