@@ -43,31 +43,13 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
     )?;
     if let ZomeCallResponse::Ok(result) = zome_call_response {
         let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-        create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
+        if let Some(result_bool) = result.into_vec().get(0).and_then(|bytes| bytes.into()) {
+            emit_signal(result_bool)?;
+        } else {
+            // Handle deserialization error for bool
+            emit_signal("faileddd")?;
+        }
     }
-
-    // match zome_call_response {
-    //     ZomeCallResponse::Ok(result) => {
-    //         let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    //         create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
-            
-    //         // Ok(())
-    //     }
-    //     ZomeCallResponse::NetworkError(err) => {
-    //         Err(
-    //             Ok(())
-    //             // wasm_error!(
-    //             //     WasmErrorInner::Guest(format!("There was a network error: {:?}",
-    //             //     err))
-    //             // ),
-    //         )
-    //     }
-    //     _ => {
-    //         Err(
-    //             // wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
-    //         )
-    //     }
-    //     }
     Ok(())
 }
 #[hdk_extern]
