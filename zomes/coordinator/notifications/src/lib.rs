@@ -44,47 +44,18 @@ pub fn handle_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
-          let entry_hash: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+          let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
         //   Ok(entry_hash)
-            emit_signal(entry_hash)?;
+            emit_signal(validated)?;
         },
-        ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => { // Callee deleted the capability grant
+        ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => {
         //   Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
         },
         _ => {
         //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
         },
     }
-
-
-    // if let ZomeCallResponse::Ok(result) = zome_call_response {
-        // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-
-
-        // let b = result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap();
-        // let b = result.decode().map_err(|err| wasm_error!(String::from(err)))?;
-        // emit_signal(b)?;
-
-        // if let Some(result_bool) = result.into_vec().get(0).and_then(|bytes| bytes.into()) {
-        // if let Some(result_bool) = result.into_vec().get(0) {
-        //         let serialized_bytes = SerializedBytes::from(result_bool);
-        //     if result_bool == true {
-        //         create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
-        //     }
-        // }
-
-        // if result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap() == true {
-        //     create_link(me.clone(), me, LinkTypes::NotificantToNotifiers, ())?;
-        // }
-        // if let Some(result_bool) = result? {//.into_vec().get(0).and_then(|bytes| bytes.into()) {
-            // emit_signal(result.into_vec().get(0))?;
-            // emit_signal(result.into_vec().get(0).and_then(|bytes| bytes.into()).unwrap())?;
-        // } else {
-            // Handle deserialization error for bool
-        // }
-    // } else {
-    //     emit_signal("faileddd")?;
-    // }
+    
     Ok(())
 }
 #[hdk_extern]
