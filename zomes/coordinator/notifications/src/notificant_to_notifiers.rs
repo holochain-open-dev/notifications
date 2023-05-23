@@ -24,7 +24,7 @@ pub fn get_notifiers_for_notificant(
     let links = get_links(notificant, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     Ok(agents)
 }
@@ -34,7 +34,7 @@ pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     Ok(agents[0].clone())
 }
@@ -53,7 +53,7 @@ pub fn remove_notifier_for_notificant(
         None,
     )?;
     for link in links {
-        if AgentPubKey::from(EntryHash::from(link.target.clone()))
+        if AgentPubKey::from(EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap())
             .eq(&input.target_notifier)
         {
             delete_link(link.create_link_hash)?;

@@ -80,7 +80,7 @@ pub fn send_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     let notifier = agents[0].clone();
     let zome_call_response = call_remote(
@@ -137,7 +137,7 @@ pub fn find_a_notifier(_: ()) -> ExternResult<AgentPubKey> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     Ok(agents[0].clone())
 }
