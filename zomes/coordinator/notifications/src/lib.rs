@@ -34,7 +34,7 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: String) -> ExternResult<()> {
+pub fn handle_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
     emit_signal(data.clone())?;
     let zome_call_response = call_remote(
         agent_info().unwrap().agent_latest_pubkey.into(),
@@ -61,7 +61,7 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
     Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: String) -> ExternResult<()> {
+pub fn send_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
