@@ -36,7 +36,7 @@ pub enum Signal {
 #[hdk_extern]
 pub fn handle_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
     emit_signal(data.clone())?;
-    let zome_call_response = call_remote(
+    let zome_call_response = call(
         agent_info().unwrap().agent_latest_pubkey.into(),
         "notifications",
         FunctionName(String::from("validate_notification_tip")),
