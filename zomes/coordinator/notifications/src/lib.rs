@@ -36,13 +36,13 @@ pub enum Signal {
 #[hdk_extern]
 pub fn handle_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
     emit_signal(data.clone())?;
-    // let zome_call_response = call_remote(
-    //     agent_info().unwrap().agent_latest_pubkey.into(),
-    //     "notifications",
-    //     FunctionName(String::from("validate_notification_tip")),
-    //     None,
-    //     data,
-    // )?;
+    let zome_call_response = call_remote(
+        agent_info().unwrap().agent_latest_pubkey.into(),
+        "notifications",
+        FunctionName(String::from("validate_notification_tip")),
+        None,
+        data,
+    )?;
 
     // match zome_call_response {
     //     ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
