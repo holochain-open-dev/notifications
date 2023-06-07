@@ -35,7 +35,7 @@ pub enum Signal {
 
 #[hdk_extern]
 pub fn handle_notification_tip(data: String) -> ExternResult<()> {
-    // emit_signal(data)?;
+    emit_signal(data.clone())?;
     let zome_call_response = call_remote(
         agent_info().unwrap().agent_latest_pubkey.into(),
         "notifications",
