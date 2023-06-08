@@ -82,6 +82,21 @@ pub fn send_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
         None,
         data,
     )?;
+
+    // ZomeCallResponse::NetworkError(err) => {
+    //     Err(
+    //         wasmerror!(
+    //             WasmErrorInner::Guest(format!("There was a network error: {:?}",
+    //             err))
+    //         ),
+    //     )
+    // }
+    //  => {
+    //     Err(
+    //         wasm_error!(WasmErrorInner::Guest(format!("Failed to handle remote call {:?}", response))),
+    //     )
+    // } 
+
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
             let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
@@ -93,6 +108,14 @@ pub fn send_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was a network error: {:?}",
                     err))
+                ),
+            )
+        }
+        ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was a network error: {:?}{:?}{:?}{:?}{:?}",
+                    a,b,c,d,e))
                 ),
             )
         }
