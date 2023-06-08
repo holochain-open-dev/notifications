@@ -96,9 +96,9 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
     
     // Ok(())
 }
-#[hdk_extern]
-pub fn send_notification_tip(data: String) -> ExternResult<()> {
-    emit_signal("tip send attempt")?;
+// #[hdk_extern]
+// pub fn send_notification_tip(data: String) -> ExternResult<()> {
+//     emit_signal("tip send attempt")?;
     // let path = Path::from(format!("all_notifiers"));
     // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     // typed_path.ensure()?;
@@ -165,7 +165,7 @@ pub fn send_notification_tip(data: String) -> ExternResult<()> {
     //         )
     //     }
     // }
-}
+// }
 #[hdk_extern]
 pub fn claim_notifier(_: ()) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
