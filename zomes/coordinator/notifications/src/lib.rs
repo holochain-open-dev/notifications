@@ -45,10 +45,10 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
-            let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
-            if validated {
-                emit_signal(result)?;
-            }
+            // let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            // if validated {
+            emit_signal(result)?;
+            // }
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
@@ -127,8 +127,8 @@ pub fn send_notification_tip(data: String) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
-            let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-            create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
+            // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+            // create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
