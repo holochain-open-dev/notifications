@@ -34,15 +34,43 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
-    emit_signal(data.clone())?;
-    // let zome_call_response = call_remote(
-    //     agent_info().unwrap().agent_latest_pubkey.into(),
-    //     "notifications",
-    //     FunctionName(String::from("validate_notification_tip")),
-    //     None,
-    //     data,
-    // )?;
+pub fn handle_notification_tip(data: String) -> ExternResult<()> {
+    let zome_call_response = call_remote(
+        agent_info().unwrap().agent_latest_pubkey.into(),
+        "notifications",
+        FunctionName(String::from("custom_handle_notification_tip")),
+        None,
+        data,
+    )?;
+
+    match zome_call_response {
+        ZomeCallResponse::Ok(result) => {
+            let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            if validated {
+                emit_signal(result)?;
+            }
+            Ok(())
+        }
+        ZomeCallResponse::NetworkError(err) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was a network error: {:?}",
+                    err))
+                ),
+            )
+        }
+        ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+                    a,b,c,d,e))
+                ),
+            )
+        }
+        _ => {
+            Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
+        },
+    }
 
     // match zome_call_response {
     //     ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
@@ -51,17 +79,17 @@ pub fn handle_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
     //         emit_signal(validated)?;
     //     },
     //     ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => {
-    //     //   Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
+    //       Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
     //     },
     //     _ => {
     //     //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
     //     },
     // }
     
-    Ok(())
+    // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: AnyDhtHash) -> ExternResult<()> {
+pub fn send_notification_tip(data: String) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
