@@ -5,6 +5,11 @@ pub mod twilio_credentials;
 use hdk::prelude::*;
 use notifications_integrity::*;
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct Tip {
+    tip: String,
+}
+
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     // let path = Path::from(format!("all_notifiers"));
@@ -34,7 +39,7 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: String) -> ExternResult<()> {
+pub fn handle_notification_tip(data: Tip) -> ExternResult<()> {
     emit_signal("tip received")?;
 
     let zome_call_response = call_remote(
@@ -91,7 +96,7 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
     // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: String) -> ExternResult<()> {
+pub fn send_notification_tip(data: Tip) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
