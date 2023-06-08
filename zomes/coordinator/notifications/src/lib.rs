@@ -39,7 +39,7 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: Tip) -> ExternResult<()> {
+pub fn handle_notification_tip(data: String) -> ExternResult<()> {
     emit_signal("tip received")?;
     Ok(())
 
@@ -97,7 +97,7 @@ pub fn handle_notification_tip(data: Tip) -> ExternResult<()> {
     // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: Tip) -> ExternResult<()> {
+pub fn send_notification_tip(data: String) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
@@ -116,7 +116,7 @@ pub fn send_notification_tip(data: Tip) -> ExternResult<()> {
         "notifications",
         FunctionName(String::from("handle_notification_tip")),
         None,
-        data,
+        String::from("test data"),
     )?;
 
     emit_signal("tip send attempted")?;
