@@ -35,6 +35,8 @@ pub enum Signal {
 
 #[hdk_extern]
 pub fn handle_notification_tip(data: String) -> ExternResult<()> {
+    emit_signal("tip received")?;
+
     let zome_call_response = call_remote(
         agent_info().unwrap().agent_latest_pubkey.into(),
         "notifications",
@@ -47,7 +49,7 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
         ZomeCallResponse::Ok(result) => {
             // let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
             // if validated {
-            emit_signal(result)?;
+            emit_signal("result")?;
             // }
             Ok(())
         }
@@ -111,6 +113,8 @@ pub fn send_notification_tip(data: String) -> ExternResult<()> {
         data,
     )?;
 
+    emit_signal("tip send attempted")?;
+
     // ZomeCallResponse::NetworkError(err) => {
     //     Err(
     //         wasmerror!(
@@ -127,6 +131,7 @@ pub fn send_notification_tip(data: String) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
+            emit_signal("tip sent")?;
             // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
             // create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
             Ok(())
