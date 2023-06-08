@@ -49,7 +49,7 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
         ZomeCallResponse::Ok(result) => {
             // let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
             // if validated {
-            emit_signal("result")?;
+            emit_signal(result)?;
             // }
             Ok(())
         }
