@@ -20,6 +20,8 @@ pub fn was_it_sent(message_id: String) -> ExternResult<bool> {
       .include_entries(true);
   let all_sent_notifications_records = query(filter)?;
 
+  emit_signal(all_sent_notifications_records.clone())?;
+
   let output: bool;
 
   let all_sent_notifications = all_sent_notifications_records
