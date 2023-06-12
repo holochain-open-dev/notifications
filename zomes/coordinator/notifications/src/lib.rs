@@ -61,9 +61,12 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
             emit_signal("custom handle received")?;
 
             let tip: NotificationTip = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            emit_signal(tip.clone())?;
             // check if validated
-            let validated = tip.status == "send";
+            let validated = tip.status == String::from("send");
+            emit_signal(validated.clone())?;
             if validated {
+                emit_signal("validated")?;
                 // check if sent
                 let message_id = tip.message_id;
                 let was_it_sent_response = call_remote(
