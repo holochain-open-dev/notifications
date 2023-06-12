@@ -28,6 +28,7 @@ pub struct NotificationTip {
   pub contacts: Vec<Contact>,
   pub extra_context: String,
   pub message_id: String,
+  pub destination: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -110,6 +111,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                                 contacts: contacts,
                                 extra_context: tip.extra_context,
                                 message_id: message_id,
+                                destination: String::from("notifier_service"),
                             };
 
                             emit_signal("this is what is sent to js client")?;
@@ -117,7 +119,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             emit_signal("this is what is sent to js client end")?;
                             
                             // save as sent
-                            let zome_call_response = call_remote(
+                            call_remote(
                                 agent_info().unwrap().agent_latest_pubkey.into(),
                                 "notifications",
                                 FunctionName(String::from("save_as_sent")),
