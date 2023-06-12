@@ -74,7 +74,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                     "notifications",
                     FunctionName(String::from("was_it_sent")),
                     None,
-                    data.message_id.clone(),
+                    message_id,
                 )?;
                 emit_signal(was_it_sent_response.clone())?;
 
@@ -91,7 +91,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                                 "notifications",
                                 FunctionName(String::from("get_contacts")),
                                 None,
-                                data.notificants.clone(),
+                                tip.notificants.clone(),
                             )?;
                             match get_contacts_response {
                             ZomeCallResponse::Ok(contacts_result) => {
