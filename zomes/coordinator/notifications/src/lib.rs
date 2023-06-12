@@ -10,12 +10,24 @@ pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
     Ok(InitCallbackResult::Pass)
 }
 
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+pub struct Contact {
+    pub agent_pub_key: AgentPubKey,
+    pub text_number: Option<String>,
+    pub whatsapp_number: Option<String>,
+    pub email_address: Option<String>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
-pub struct NotificationTipInput {
+pub struct NotificationTip {
   pub retry_count: i32,
+  pub status: String,
   pub message: String,
   pub notificants: Vec<AgentPubKey>,
+  pub contacts: Vec<Contact>,
   pub extra_context: String,
+  pub message_id: String,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -33,7 +45,7 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
+pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
     emit_signal("tip received")?;
 
     let zome_call_response = call_remote(
@@ -41,19 +53,70 @@ pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
         "notifications",
         FunctionName(String::from("custom_handle_notification_tip")),
         None,
-        data,
+        data.clone(),
     )?;
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
-            // check validation
-            // find contacts
-            // check if sent
-            // save as sent and send
-            // let validated: String = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
-            // if validated {
-            emit_signal(result)?;
-            // }
+            let tip: NotificationTip = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            // check if validated
+            let validated = tip.status == "send";
+            if validated {
+                // check if sent
+                let message_id = tip.message_id;
+                let was_it_sent_response = call_remote(
+                    agent_info().unwrap().agent_latest_pubkey.into(),
+                    "notifications",
+                    FunctionName(String::from("was_it_sent")),
+                    None,
+                    data.message_id.clone(),
+                )?;
+
+                match was_it_sent_response {
+                    ZomeCallResponse::Ok(was_it_sent) => {
+                        let was_it_sent: bool = was_it_sent.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+                        if was_it_sent {
+                            // find contacts
+                            let mut contacts: Vec<Contact> = vec![];
+                            let get_contacts_response = call_remote(
+                                agent_info().unwrap().agent_latest_pubkey.into(),
+                                "notifications",
+                                FunctionName(String::from("get_contacts")),
+                                None,
+                                data.notificants.clone(),
+                            )?;
+                            match get_contacts_response {
+                            ZomeCallResponse::Ok(contacts_result) => {
+                                contacts = contacts_result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+                            }_ => {}};
+
+                            // save as sent and send
+                            let output: NotificationTip = NotificationTip {
+                                retry_count: tip.retry_count,
+                                status: tip.status,
+                                message: tip.message,
+                                notificants: tip.notificants,
+                                contacts: contacts,
+                                extra_context: tip.extra_context,
+                                message_id: message_id,
+                            };
+
+                            emit_signal("this is what is sent to js client")?;
+                            emit_signal(output)?;
+                            emit_signal("this is what is sent to js client end")?;
+                            
+                            // save as sent
+                            let zome_call_response = call_remote(
+                                agent_info().unwrap().agent_latest_pubkey.into(),
+                                "notifications",
+                                FunctionName(String::from("save_as_sent")),
+                                None,
+                                data.message_id,
+                            )?;
+                        }
+                    }_ => {},
+                }
+            }
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
@@ -94,7 +157,7 @@ pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
     // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
+pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;

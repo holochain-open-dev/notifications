@@ -59,12 +59,36 @@ pub fn create_contact(contact: Contact) -> ExternResult<Record> {
     Ok(record)
 }
 #[hdk_extern]
-pub fn get_contacts(agent_pub_key: AgentPubKey) -> ExternResult<Vec<Record>> {
+pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contact>> {
     let contact_entry_type: EntryType = UnitEntryTypes::Contact.try_into()?;
     let filter = ChainQueryFilter::new()
         .entry_type(contact_entry_type)
         .include_entries(true);
-    let all_contacts = query(filter)?;
+    let all_contact_records = query(filter)?;
+
+    let all_contacts: Vec<Contact> = all_contact_records
+        .into_iter()
+        .map(|record| {
+            let contact: Contact = record
+                .entry
+                .clone()
+                .into_option()
+                .ok_or(
+                    wasm_error!(WasmErrorInner::Guest(
+                        String::from("Could not find the Contact")
+                    )),
+                )?
+                .try_into()?;
+            Ok(contact)
+        })
+        .collect::<ExternResult<Vec<Contact>>>()?;
+
+    let all_contacts = all_contacts
+        .into_iter()
+        .filter(|contact| {
+            agent_pub_keys.contains(&contact.agent_pub_key)
+        })
+        .collect::<Vec<Contact>>();
 
     Ok(all_contacts)
 }
