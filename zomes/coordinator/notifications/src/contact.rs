@@ -60,6 +60,7 @@ pub fn create_contact(contact: Contact) -> ExternResult<Record> {
 }
 #[hdk_extern]
 pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contact>> {
+    emit_signal("agent pub keys below")?;
     emit_signal(agent_pub_keys.clone())?;
 
     let contact_entry_type: EntryType = UnitEntryTypes::Contact.try_into()?;

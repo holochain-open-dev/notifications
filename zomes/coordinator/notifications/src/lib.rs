@@ -98,6 +98,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                                 emit_signal("contacts received")?;
                                 emit_signal(contacts_result.clone())?;
                                 contacts = contacts_result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+                                emit_signal(contacts.clone())?;
                             }_ => {}};
 
                             // save as sent and send
