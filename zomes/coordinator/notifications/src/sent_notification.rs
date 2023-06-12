@@ -39,12 +39,16 @@ pub fn was_it_sent(message_id: String) -> ExternResult<bool> {
     })
     .collect::<ExternResult<Vec<SentNotification>>>()?;
 
+    emit_signal(all_sent_notifications.clone())?;
+
     let filtered_sent_notifications = all_sent_notifications
     .into_iter()
     .filter(|sent_notification| {
         sent_notification.unique_data == message_id
     })
     .collect::<Vec<SentNotification>>();
+
+    emit_signal(filtered_sent_notifications.clone())?;
 
     if filtered_sent_notifications.len() > 0 {
       output = true;
