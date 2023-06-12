@@ -60,11 +60,15 @@ pub fn create_contact(contact: Contact) -> ExternResult<Record> {
 }
 #[hdk_extern]
 pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contact>> {
+    emit_signal(agent_pub_keys.clone())?;
+
     let contact_entry_type: EntryType = UnitEntryTypes::Contact.try_into()?;
     let filter = ChainQueryFilter::new()
         .entry_type(contact_entry_type)
         .include_entries(true);
     let all_contact_records = query(filter)?;
+
+    emit_signal(all_contact_records.clone())?;
 
     let all_contacts: Vec<Contact> = all_contact_records
         .into_iter()
@@ -83,12 +87,16 @@ pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contac
         })
         .collect::<ExternResult<Vec<Contact>>>()?;
 
+    emit_signal(all_contacts.clone())?;
+
     let all_contacts = all_contacts
         .into_iter()
         .filter(|contact| {
             agent_pub_keys.contains(&contact.agent_pub_key)
         })
         .collect::<Vec<Contact>>();
+
+    emit_signal(all_contacts.clone())?;
 
     Ok(all_contacts)
 }
