@@ -75,7 +75,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                 match was_it_sent_response {
                     ZomeCallResponse::Ok(was_it_sent) => {
                         let was_it_sent: bool = was_it_sent.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
-                        if was_it_sent {
+                        if !was_it_sent {
                             // find contacts
                             let mut contacts: Vec<Contact> = vec![];
                             let get_contacts_response = call_remote(
@@ -116,6 +116,8 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                         }
                     }_ => {},
                 }
+            } else {
+                emit_signal("not validated")?;
             }
             Ok(())
         }
