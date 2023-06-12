@@ -58,6 +58,8 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
+            emit_signal("custom handle received")?;
+
             let tip: NotificationTip = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
             // check if validated
             let validated = tip.status == "send";
@@ -74,6 +76,8 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
 
                 match was_it_sent_response {
                     ZomeCallResponse::Ok(was_it_sent) => {
+                        emit_signal("was it sent received")?;
+
                         let was_it_sent: bool = was_it_sent.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
                         if !was_it_sent {
                             // find contacts
@@ -87,6 +91,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             )?;
                             match get_contacts_response {
                             ZomeCallResponse::Ok(contacts_result) => {
+                                emit_signal("contacts received")?;
                                 contacts = contacts_result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
                             }_ => {}};
 
