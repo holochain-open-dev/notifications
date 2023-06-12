@@ -110,7 +110,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                                 notificants: tip.notificants,
                                 contacts: contacts,
                                 extra_context: tip.extra_context,
-                                message_id: message_id,
+                                message_id: message_id.clone(),
                                 destination: String::from("notifier_service"),
                             };
 
@@ -119,12 +119,15 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             emit_signal("this is what is sent to js client end")?;
                             
                             // save as sent
+                            let sent_notification: SentNotification = SentNotification {
+                                unique_data: message_id,
+                            };
                             call(
                                 CallTargetCell::Local,
                                 ZomeName::from(String::from("notifications")),
                                 FunctionName(String::from("create_sent_notification")),
                                 None,
-                                data.message_id,
+                                sent_notification,
                             )?;
                         }
                     }_ => {},
