@@ -94,7 +94,7 @@ pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
     // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: String) -> ExternResult<()> {
+pub fn send_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
