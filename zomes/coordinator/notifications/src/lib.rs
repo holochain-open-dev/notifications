@@ -115,20 +115,22 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             };
 
                             emit_signal("this is what is sent to js client")?;
-                            emit_signal(output)?;
+                            emit_signal(output.clone())?;
                             emit_signal("this is what is sent to js client end")?;
                             
-                            // save as sent
-                            let sent_notification: SentNotification = SentNotification {
-                                unique_data: message_id,
-                            };
-                            call(
-                                CallTargetCell::Local,
-                                ZomeName::from(String::from("notifications")),
-                                FunctionName(String::from("create_sent_notification")),
-                                None,
-                                sent_notification,
-                            )?;
+                            if output.status == String::from("send") {
+                                // save as sent
+                                let sent_notification: SentNotification = SentNotification {
+                                    unique_data: message_id,
+                                };
+                                call(
+                                    CallTargetCell::Local,
+                                    ZomeName::from(String::from("notifications")),
+                                    FunctionName(String::from("create_sent_notification")),
+                                    None,
+                                    sent_notification,
+                                )?;
+                            }
                         }
                     }_ => {},
                 }
