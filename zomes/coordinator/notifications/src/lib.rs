@@ -76,6 +76,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                     None,
                     data.message_id.clone(),
                 )?;
+                emit_signal(was_it_sent_response.clone())?;
 
                 match was_it_sent_response {
                     ZomeCallResponse::Ok(was_it_sent) => {
