@@ -119,10 +119,10 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             emit_signal("this is what is sent to js client end")?;
                             
                             // save as sent
-                            call_remote(
-                                agent_info().unwrap().agent_latest_pubkey.into(),
-                                "notifications",
-                                FunctionName(String::from("save_as_sent")),
+                            call(
+                                CallTargetCell::Local,
+                                ZomeName::from(String::from("notifications")),
+                                FunctionName(String::from("create_sent_notification")),
                                 None,
                                 data.message_id,
                             )?;
