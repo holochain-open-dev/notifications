@@ -7,18 +7,17 @@ use notifications_integrity::*;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    // let path = Path::from(format!("all_notifiers"));
-    // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    // typed_path.ensure()?;
-    // let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    // create_link(
-    //     typed_path.path_entry_hash()?,
-    //     my_agent_pub_key,
-    //     LinkTypes::AnchorToNotifiers,
-    //     (),
-    // )?;
     Ok(InitCallbackResult::Pass)
 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationTipInput {
+  pub retry_count: i32,
+  pub message: String,
+  pub notificants: Vec<AgentPubKey>,
+  pub extra_context: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Signal {
@@ -34,7 +33,7 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: String) -> ExternResult<()> {
+pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
     emit_signal("tip received")?;
 
     let zome_call_response = call_remote(
@@ -47,7 +46,11 @@ pub fn handle_notification_tip(data: String) -> ExternResult<()> {
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
-            // let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            // check validation
+            // find contacts
+            // check if sent
+            // save as sent and send
+            // let validated: String = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
             // if validated {
             emit_signal(result)?;
             // }
