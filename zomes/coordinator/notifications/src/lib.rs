@@ -74,7 +74,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                     "notifications",
                     FunctionName(String::from("was_it_sent")),
                     None,
-                    message_id,
+                    message_id.clone(),
                 )?;
                 emit_signal(was_it_sent_response.clone())?;
 
