@@ -49,13 +49,15 @@ pub enum Signal {
 pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
     emit_signal("tip received")?;
 
-    let zome_call_response = call_remote(
-        agent_info().unwrap().agent_latest_pubkey.into(),
-        "notifications",
+    let zome_call_response = call(
+        CallTargetCell::Local,
+        ZomeName::from(String::from("notifications")),
         FunctionName(String::from("custom_handle_notification_tip")),
         None,
         data.clone(),
     )?;
+
+    emit_signal(zome_call_response.clone())?;
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
@@ -87,9 +89,9 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                         if !was_it_sent {
                             // find contacts
                             let mut contacts: Vec<Contact> = vec![];
-                            let get_contacts_response = call_remote(
-                                agent_info().unwrap().agent_latest_pubkey.into(),
-                                "notifications",
+                            let get_contacts_response = call(
+                                CallTargetCell::Local,
+                                ZomeName::from(String::from("notifications")),
                                 FunctionName(String::from("get_contacts")),
                                 None,
                                 tip.notificants.clone(),
@@ -118,7 +120,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             emit_signal(output.clone())?;
                             emit_signal("this is what is sent to js client end")?;
                             
-                            if output.status == String::from("send") {
+                            if output.status == String::from("send") && output.message_id != String::from("") {
                                 // save as sent
                                 let sent_notification: SentNotification = SentNotification {
                                     unique_data: message_id,
