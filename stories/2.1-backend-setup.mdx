@@ -14,7 +14,7 @@ hc scaffold zome notifications
 
 Select the "Integrity/coordinator zome pair" option, and accept the path that the scaffolding tool offers to scaffold the zomes.
 
-2. Add the `hc_zome_profiles_coordinator` and `hc_zome_profiles_integrity` zomes as dependencies with:
+2. Add the `hc_zome_notifications_coordinator` and `hc_zome_notifications_integrity` zomes as dependencies with:
 
 ```bash
 cargo add -p notifications hc_zome_notifications_coordinator
@@ -30,5 +30,25 @@ extern crate hc_zome_notifications_integrity;
 4. Go into the newly scaffolded coordinator zome's `lib.rs` (its path may be similar to `dnas/lobby/zomes/coordinator/notifications/src/lib.rs`) and **replace its contents with**:
 
 ```rust
-extern crate hc_zome_notifications_coordinator;
+extern crate hc_zome_notifications;
+use hdk::prelude::{*};
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationTip {
+  pub retry_count: i32, //The number of times this notification has been retried. Use custom_handle_notification_tip to increment and limit.
+  pub status: String, //"stop", "go" or "retry"
+  pub message: String, //The message to send to the notificant
+  pub notificants: Vec<AgentPubKey>, //The list of notificants to send the message to
+  pub contacts: Vec<Contact>, //The list of contacts to send the message to. If left blank, contact details will automatically be retrieved based on the notificants.
+  pub extra_context: String, //Any extra data that needs to be passed to the custom_handle_notification_tip function. For example, a hash of an entry.
+  pub message_id: String, //A unique identifier of the message to send. For instance, a string containing a timestamp and message content. This is used to automtatically prevent duplicate messages. If left blank, there will be no prevention of duplicate notifications.
+  pub destination: String, //Used for debugging. The name of the function that the data is being sent to.
+}
+
+#[hdk_extern]
+pub fn custom_handle_notification_tip(notificaitonTip: NotificationTip) -> ExternResult<NotificationTip> {
+  // TODO: Any customize handling of notification tip that is needed, including handling retries, collecting a list of notificants, or verifying legitimacy.
+  Ok(notificaitonTip)
+}
 ```
+5. Add any custom script to the function "custom_handle_notification_tip". This function will be run by the notifier agent when they receive a notification tip. For instance, if this is a notification about an event, you may want to verify that the event exists and is happening. If the notification tip is about a peer-to-peer message, you may want to verify that the listed sender is the same agent that sent the tip.

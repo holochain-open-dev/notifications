@@ -1,0 +1,58 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Notifier agent" />
+
+# Setting up a notifier agent
+
+1. Provision a dedicated machine that will always be running and install the nix holochain environment.
+bash <(curl https://holochain.github.io/holochain/setup.sh)
+
+2. Download the hc_notifier repository.
+git clone https://.....
+
+3. Add the .happ file for your app to the base level of the hc_notifier directory
+
+4. Edit the config.json file to add your twilio credentials. For example:
+{
+  "twilio": {
+    "account_sid": "12e123f12414trf2322",
+    "auth_token": "2323afa3wqef4t242taas",
+    "from_number": "+12551136611"
+  }
+}
+
+5. Start the nix environment
+```bash
+cd hc_notifier
+nix develop
+```
+
+6. Start the notifier agent
+The first time you start the notifier, run
+```bash
+npm run generate
+npm run start
+npm run notifier
+```
+
+This will start the notifier running as a pm2 process.
+To stop the process, run 
+
+```bash
+npm stop
+```
+
+If you need to restart the notifer after stopping it, run
+```bash
+npm run restart
+npm run notifier
+```
+
+To run any process without pm2, add "debug-" before a command. For example:
+```bash
+npm run debug-start
+```
+or
+```bash
+npm run debug-notifier
+```

@@ -1,0 +1,33 @@
+import { Meta } from '@storybook/addon-docs';
+
+<Meta title="Backend/Sending notification tips" />
+
+# Sending notification tips
+
+> This is a guide for sending notification requests, or "tips" to a notifier agent
+
+1. Select a notifier agent
+Each agent can select its own notifier, which will be listed at the path "all_notifiers".
+To check available notifier agents, call
+```rust
+list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>>
+```
+To select a notifier agent, call
+```rust
+select_notifier(input: AgentPubKey) -> ExternResult<()>
+```
+
+Then send your notifier your contact with the function "send_contact(contact: Contact)". A contact is defined as: 
+
+```rust
+#[derive(Clone, PartialEq)]
+pub struct Contact {
+    pub agent_pub_key: AgentPubKey,
+    pub text_number: Option<String>,
+    pub whatsapp_number: Option<String>,
+    pub email_address: Option<String>,
+}
+```
+
+2. Send a notification tip
+In your application code, whenever a notification is appropriate, send a notification tip to the notifier agent. The construction of the notification tip is a collaborative process between the agent that sent the tip, and the agent that process the tip and notifies the recipient. Every field is required, but may contain an empty String or Vec. The custom_handle_notification_tip function must then retrieve any other relevant information to complete the NotificationTip.

@@ -2,19 +2,28 @@ use hdk::prelude::*;
 use notifications_integrity::*;
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
-    let path = Path::from(format!("all_notifiers"));
-    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    typed_path.ensure()?;
-    let links = get_links(
-        typed_path.path_entry_hash()?,
-        LinkTypes::AnchorToNotifiers,
-        None,
-    )?;
+    // let path = Path::from(format!("all_notifiers"));
+    // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
+    // typed_path.ensure()?;
+    // let links = get_links(
+    //     typed_path.path_entry_hash()?,
+    //     LinkTypes::AnchorToNotifiers,
+    //     None,
+    // )?;
+    // let agents: Vec<AgentPubKey> = links
+    //     .into_iter()
+    //     .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+    //     .collect();
+    // let notifier = agents[0].clone();
+
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
     let notifier = agents[0].clone();
+
     let zome_call_response = call_remote(
         notifier.clone(),
         "notifications",

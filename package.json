@@ -10,7 +10,11 @@
     "test": "npm run build:happ && RUSTFLAGS='' cargo nextest run -j 1",
     "launch:happ": "echo \"pass\" | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/notifications.happ --ui-port $UI_PORT network mdns",
     "build:happ": "npm run build:zomes && hc app pack workdir --recursive",
-    "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown"
+    "build:zomes": "RUSTFLAGS='' CARGO_TARGET_DIR=target cargo build --release --target wasm32-unknown-unknown",
+    "docs:start": "npm run docs:setup && storybook dev -p 6006",
+    "docs:publish": "npm run docs:setup && storybook build && gh-pages -d ./storybook-static -b gh-pages",
+    "docs:setup": "npm run build && npm run analyze",
+    "1docs:setup": "npm run build -w @holochain-open-dev/profiles && npm run analyze -w @holochain-open-dev/profiles"
   },
   "devDependencies": {
     "@holochain-playground/cli": "^0.1.1",
