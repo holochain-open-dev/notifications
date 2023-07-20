@@ -12,7 +12,7 @@ use hdi::prelude::*;
 #[hdk_entry_defs]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
-    #[entry_def(name = "TwilioCredentials", visibility = "public")]
+    #[entry_def(name = "TwilioCredentials", visibility = "private")]
     TwilioCredentials(TwilioCredentials),
     #[entry_def(name = "Contact", visibility = "private")]
     Contact(Contact),
