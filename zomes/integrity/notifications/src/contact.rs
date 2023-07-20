@@ -11,10 +11,11 @@ pub fn validate_create_contact(
     action: EntryCreationAction,
     contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
-    if contact.agent_pub_key != action.author().clone().into() {
-        return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
-    }
-    Ok(ValidateCallbackResult::Valid)
+    // if contact.agent_pub_key != action.author().clone().into() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
+    // Ok(ValidateCallbackResult::Valid)
+    return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
 }
 pub fn validate_update_contact(
     action: Update,
