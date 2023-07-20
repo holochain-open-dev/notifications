@@ -10,7 +10,9 @@ pub fn validate_create_twilio_credentials(
     _action: EntryCreationAction,
     _twilio_credentials: TwilioCredentials,
 ) -> ExternResult<ValidateCallbackResult> {
-    Ok(ValidateCallbackResult::Valid)
+    debug!("-----------------------> validate create twilio: {:?}", _action);
+    Ok(ValidateCallbackResult::Invalid("testing".into()))
+    // Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_twilio_credentials(
     _action: Update,
