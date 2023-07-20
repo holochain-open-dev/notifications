@@ -99,6 +99,9 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
 
 #[hdk_extern]
 pub fn create_contact(contact: Contact) -> ExternResult<Record> {
+    debug!("=======================================================================> create contact {:?}", contact);
+    emit_signal("contact.clone()")?;
+    emit_signal(contact.clone())?;
     let contact_hash = create_entry(&EntryTypes::Contact(contact.clone()))?;
     let record = get(contact_hash.clone(), GetOptions::default())?
         .ok_or(
