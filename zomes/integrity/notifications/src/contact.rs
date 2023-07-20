@@ -1,4 +1,4 @@
-use hdi::prelude::*;
+use hdi::prelude::{*, tracing::field::debug};
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Contact {
@@ -11,6 +11,7 @@ pub fn validate_create_contact(
     action: EntryCreationAction,
     contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
+    debug!("-----------------------> validate create contact: {:?}", action);
     // if contact.agent_pub_key != action.author().clone().into() {
     //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
     // }
