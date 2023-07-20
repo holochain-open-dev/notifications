@@ -40,12 +40,7 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     )?;
     // Ok(())
     match zome_call_response {
-        ZomeCallResponse::Ok(result) => {
-            let action_hash: ActionHash = result
-                .decode()
-                .map_err(|err| wasm_error!(err))?;
-            let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-            create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
+        ZomeCallResponse::Ok(_result) => {
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
