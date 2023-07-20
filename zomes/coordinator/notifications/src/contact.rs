@@ -56,6 +56,47 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     //     }
     // }
 }
+
+#[hdk_extern]
+pub fn send_update_contact(contact: Contact) -> ExternResult<()> {
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let agents: Vec<AgentPubKey> = links
+        .into_iter()
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .collect();
+    let notifier = agents[0].clone();
+
+    let zome_call_response = call_remote(
+        notifier.clone(),
+        "notifications",
+        FunctionName(String::from("update_contact")),
+        None,
+        contact,
+    )?;
+    Ok(())
+}
+
+#[hdk_extern]
+pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let agents: Vec<AgentPubKey> = links
+        .into_iter()
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .collect();
+    let notifier = agents[0].clone();
+
+    let zome_call_response = call_remote(
+        notifier.clone(),
+        "notifications",
+        FunctionName(String::from("delete_contact")),
+        None,
+        contact,
+    )?;
+    Ok(())
+}
+
 #[hdk_extern]
 pub fn create_contact(contact: Contact) -> ExternResult<Record> {
     let contact_hash = create_entry(&EntryTypes::Contact(contact.clone()))?;
@@ -111,13 +152,15 @@ pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contac
     Ok(all_contacts)
 }
 #[derive(Serialize, Deserialize, Debug)]
-pub struct UpdateContactInput {
-    pub original_contact_hash: ActionHash,
-    pub previous_contact_hash: ActionHash,
-    pub updated_contact: Contact,
-}
+// pub struct UpdateContactInput {
+//     pub original_contact_hash: ActionHash,
+//     pub previous_contact_hash: ActionHash,
+//     pub updated_contact: Contact,
+// }
 #[hdk_extern]
-pub fn update_contact(input: UpdateContactInput) -> ExternResult<Record> {
+pub fn update_contact(input: Contact) -> ExternResult<Record> {
+    
+
     let updated_contact_hash = update_entry(
         input.previous_contact_hash.clone(),
         &input.updated_contact,

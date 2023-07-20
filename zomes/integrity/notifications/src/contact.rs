@@ -8,9 +8,13 @@ pub struct Contact {
     pub email_address: Option<String>,
 }
 pub fn validate_create_contact(
-    _action: EntryCreationAction,
+    action: EntryCreationAction,
     _contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
+    debug!("=======================================================================> create contact action {:?}", action);
+    // if target_address != action.author.clone().into() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the agent can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_contact(

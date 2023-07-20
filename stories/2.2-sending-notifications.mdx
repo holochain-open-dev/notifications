@@ -17,6 +17,11 @@ To select a notifier agent, call
 select_notifier(input: AgentPubKey) -> ExternResult<()>
 ```
 
+To automatically select the first noptifier agent, call
+```rust
+select_first_notifier(_: ()) -> ExternResult<()>
+```
+
 Then send your notifier your contact with the function "send_contact(contact: Contact)". A contact is defined as: 
 
 ```rust
