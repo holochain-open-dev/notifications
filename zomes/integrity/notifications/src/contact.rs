@@ -8,39 +8,33 @@ pub struct Contact {
     pub email_address: Option<String>,
 }
 pub fn validate_create_contact(
-    action: EntryCreationAction,
-    contact: Contact,
+    _action: EntryCreationAction,
+    _contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
-    debug!("-----------------------> validate create contact: {:?}", action);
-    // return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
-    debug!("-----------------------> contact agent: {:?}", contact.agent_pub_key.clone());
-    debug!("-----------------------> action agent: {:?}", action.author().clone());
-    debug!("-----------------------> same: {:?}", contact.agent_pub_key.clone() == action.author().clone().into());
-
-    if contact.agent_pub_key != action.author().clone().into() {
-        return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
-    }
+    // if contact.agent_pub_key != action.author().clone().into() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_contact(
-    action: Update,
-    contact: Contact,
-    original_action: EntryCreationAction,
+    _action: Update,
+    _contact: Contact,
+    _original_action: EntryCreationAction,
     _original_contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
-    if (original_action.author().clone() != action.author.clone()) || (action.author.clone() != contact.agent_pub_key) {
-        return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
-    }
+    // if (original_action.author().clone() != action.author.clone()) || (action.author.clone() != contact.agent_pub_key) {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_contact(
-    action: Delete,
-    original_action: EntryCreationAction,
+    _action: Delete,
+    _original_action: EntryCreationAction,
     _original_contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
-    if original_action.author().clone() != action.author.clone() {
-        return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
-    }
+    // if original_action.author().clone() != action.author.clone() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_contact_updates(
