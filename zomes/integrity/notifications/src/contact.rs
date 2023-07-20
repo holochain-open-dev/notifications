@@ -13,6 +13,10 @@ pub fn validate_create_contact(
 ) -> ExternResult<ValidateCallbackResult> {
     debug!("-----------------------> validate create contact: {:?}", action);
     // return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    debug!("-----------------------> contact agent: {:?}", contact.agent_pub_key.clone());
+    debug!("-----------------------> action agent: {:?}", action.author().clone());
+    debug!("-----------------------> same: {:?}", contact.agent_pub_key.clone() == action.author().clone().into());
+
     if contact.agent_pub_key != action.author().clone().into() {
         return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
     }
