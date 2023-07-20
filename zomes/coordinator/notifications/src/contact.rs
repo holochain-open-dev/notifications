@@ -152,14 +152,14 @@ pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contac
     Ok(all_contacts)
 }
 #[derive(Serialize, Deserialize, Debug)]
-// pub struct UpdateContactInput {
-//     pub original_contact_hash: ActionHash,
-//     pub previous_contact_hash: ActionHash,
-//     pub updated_contact: Contact,
-// }
+pub struct UpdateContactInput {
+    pub original_contact_hash: ActionHash,
+    pub previous_contact_hash: ActionHash,
+    pub updated_contact: Contact,
+}
 #[hdk_extern]
-pub fn update_contact(input: Contact) -> ExternResult<Record> {
-    
+pub fn update_contact(input: UpdateContactInput) -> ExternResult<Record> {
+
 
     let updated_contact_hash = update_entry(
         input.previous_contact_hash.clone(),
