@@ -317,12 +317,12 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                 contact.clone(),
                             )?;
                             if let ValidateCallbackResult::Valid = result {
-                                let original_coordination: Option<Contact> = original_record
+                                let original_contact: Option<Contact> = original_record
                                     .entry()
                                     .to_app_option()
                                     .map_err(|e| wasm_error!(e))?;
-                                let contact = match original_coordination {
-                                    Some(coordination) => coordination,
+                                let original_contact = match original_contact {
+                                    Some(contact) => contact,
                                     None => {
                                         return Ok(
                                             ValidateCallbackResult::Invalid(
@@ -336,7 +336,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                                     action,
                                     contact,
                                     original_action,
-                                    contact,
+                                    original_contact,
                                 )
                             } else {
                                 Ok(result)
