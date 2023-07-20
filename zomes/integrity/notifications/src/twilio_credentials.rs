@@ -4,7 +4,8 @@ use hdi::prelude::*;
 pub struct TwilioCredentials {
     pub account_sid: String,
     pub auth_token: String,
-    pub from_number: String,
+    pub from_number_text: String,
+    pub from_number_whatsapp: String,
 }
 pub fn validate_create_twilio_credentials(
     _action: EntryCreationAction,
