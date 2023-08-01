@@ -1,4 +1,4 @@
-use hdi::prelude::*;
+use hdi::prelude::{*, tracing::field::debug};
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
 pub struct Contact {
@@ -11,6 +11,9 @@ pub fn validate_create_contact(
     _action: EntryCreationAction,
     _contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
+    // if contact.agent_pub_key != action.author().clone().into() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_update_contact(
@@ -19,6 +22,9 @@ pub fn validate_update_contact(
     _original_action: EntryCreationAction,
     _original_contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
+    // if (original_action.author().clone() != action.author.clone()) || (action.author.clone() != contact.agent_pub_key) {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_delete_contact(
@@ -26,6 +32,9 @@ pub fn validate_delete_contact(
     _original_action: EntryCreationAction,
     _original_contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
+    // if original_action.author().clone() != action.author.clone() {
+    //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));
+    // }
     Ok(ValidateCallbackResult::Valid)
 }
 pub fn validate_create_link_contact_updates(

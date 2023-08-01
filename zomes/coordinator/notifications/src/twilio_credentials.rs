@@ -3,11 +3,9 @@ use notifications_integrity::*;
 fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     let mut functions: BTreeSet<(ZomeName, FunctionName)> = BTreeSet::new();
     functions.insert((zome_info()?.name, FunctionName(String::from("create_contact"))));
-    functions
-        .insert((
-            zome_info()?.name,
-            FunctionName(String::from("handle_notification_tip")),
-        ));
+    functions.insert((zome_info()?.name, FunctionName(String::from("update_contact"))));
+    functions.insert((zome_info()?.name, FunctionName(String::from("delete_contact"))));
+    functions.insert((zome_info()?.name, FunctionName(String::from("handle_notification_tip"))));
     Ok(GrantedFunctions::Listed(functions))
 }
 #[hdk_extern]

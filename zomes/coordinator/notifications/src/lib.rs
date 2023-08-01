@@ -5,28 +5,32 @@ pub mod twilio_credentials;
 use hdk::prelude::*;
 use notifications_integrity::*;
 
-#[hdk_entry_helper]
-#[derive(Clone, PartialEq)]
-pub struct NotificationTipInput {
-    pub relevant_hash: Option<AnyLinkableHash>,
-    pub message: Option<String>,
-    pub notifyees: Vec<AgentPubKey>,
-}
-
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    // let path = Path::from(format!("all_notifiers"));
-    // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    // typed_path.ensure()?;
-    // let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    // create_link(
-    //     typed_path.path_entry_hash()?,
-    //     my_agent_pub_key,
-    //     LinkTypes::AnchorToNotifiers,
-    //     (),
-    // )?;
     Ok(InitCallbackResult::Pass)
 }
+
+#[hdk_entry_helper]
+#[derive(Clone, PartialEq)]
+pub struct Contact {
+    pub agent_pub_key: AgentPubKey,
+    pub text_number: Option<String>,
+    pub whatsapp_number: Option<String>,
+    pub email_address: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct NotificationTip {
+  pub retry_count: i32,
+  pub status: String,
+  pub message: String,
+  pub notificants: Vec<AgentPubKey>,
+  pub contacts: Vec<Contact>,
+  pub extra_context: String,
+  pub message_id: String,
+  pub destination: String,
+}
+
 #[derive(Serialize, Deserialize, Debug)]
 #[serde(tag = "type")]
 pub enum Signal {
@@ -42,34 +46,140 @@ pub enum Signal {
 }
 
 #[hdk_extern]
-pub fn handle_notification_tip(data: NotificationTipInput) -> ExternResult<()> {
-    // emit_signal(data)?;
-    let zome_call_response = call_remote(
-        agent_info().unwrap().agent_latest_pubkey.into(),
-        "notifications",
-        FunctionName(String::from("validate_notification_tip")),
+pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
+    emit_signal("tip received")?;
+
+    let zome_call_response = call(
+        CallTargetCell::Local,
+        ZomeName::from(String::from("notifications")),
+        FunctionName(String::from("custom_handle_notification_tip")),
         None,
-        data.relevant_hash.unwrap(),
+        data.clone(),
     )?;
 
+    emit_signal(zome_call_response.clone())?;
+
     match zome_call_response {
-        ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
-          let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
-        //   Ok(entry_hash)
-            emit_signal(validated)?;
-        },
-        ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => {
-        //   Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
-        },
+        ZomeCallResponse::Ok(result) => {
+            emit_signal("custom handle received")?;
+
+            let tip: NotificationTip = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+            emit_signal(tip.clone())?;
+            // check if validated
+            let validated = tip.status != String::from("stop");
+            emit_signal(validated.clone())?;
+            if validated {
+                emit_signal("validated")?;
+                // check if sent
+                let message_id = tip.message_id;
+                let was_it_sent_response = call_remote(
+                    agent_info().unwrap().agent_latest_pubkey.into(),
+                    "notifications",
+                    FunctionName(String::from("was_it_sent")),
+                    None,
+                    message_id.clone(),
+                )?;
+                emit_signal(was_it_sent_response.clone())?;
+
+                match was_it_sent_response {
+                    ZomeCallResponse::Ok(was_it_sent) => {
+                        emit_signal("was it sent received")?;
+
+                        let was_it_sent: bool = was_it_sent.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+                        if !was_it_sent {
+                            // find contacts
+                            let mut contacts: Vec<Contact> = vec![];
+                            let get_contacts_response = call(
+                                CallTargetCell::Local,
+                                ZomeName::from(String::from("notifications")),
+                                FunctionName(String::from("get_contacts")),
+                                None,
+                                tip.notificants.clone(),
+                            )?;
+                            match get_contacts_response {
+                            ZomeCallResponse::Ok(contacts_result) => {
+                                emit_signal("contacts received")?;
+                                emit_signal(contacts_result.clone())?;
+                                contacts = contacts_result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+                                emit_signal(contacts.clone())?;
+                            }_ => {}};
+
+                            // save as sent and send
+                            let output: NotificationTip = NotificationTip {
+                                retry_count: tip.retry_count,
+                                status: tip.status,
+                                message: tip.message,
+                                notificants: tip.notificants,
+                                contacts: contacts,
+                                extra_context: tip.extra_context,
+                                message_id: message_id.clone(),
+                                destination: String::from("notifier_service"),
+                            };
+
+                            emit_signal("this is what is sent to js client")?;
+                            emit_signal(output.clone())?;
+                            emit_signal("this is what is sent to js client end")?;
+                            
+                            if output.status == String::from("send") && output.message_id != String::from("") {
+                                // save as sent
+                                let sent_notification: SentNotification = SentNotification {
+                                    unique_data: message_id,
+                                };
+                                call(
+                                    CallTargetCell::Local,
+                                    ZomeName::from(String::from("notifications")),
+                                    FunctionName(String::from("create_sent_notification")),
+                                    None,
+                                    sent_notification,
+                                )?;
+                            }
+                        }
+                    }_ => {},
+                }
+            } else {
+                emit_signal("not validated")?;
+            }
+            Ok(())
+        }
+        ZomeCallResponse::NetworkError(err) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was a network error: {:?}",
+                    err))
+                ),
+            )
+        }
+        ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+                    a,b,c,d,e))
+                ),
+            )
+        }
         _ => {
-        //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
+            Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
         },
     }
+
+    // match zome_call_response {
+    //     ZomeCallResponse::Ok(result) => { // ExternIO is a wrapper around a byte array
+    //       let validated: bool = result.decode().map_err(|err| wasm_error!(String::from(err)))?; // Deserialize byte array
+    //     //   Ok(entry_hash)
+    //         emit_signal(validated)?;
+    //     },
+    //     ZomeCallResponse::Unauthorized(cell_id, zome_name, function_name, callee, agent_pubkey) => {
+    //       Err(wasm_error!(WasmErrorInner::Guest("Agent revoked the capability".into())))
+    //     },
+    //     _ => {
+    //     //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
+    //     },
+    // }
     
-    Ok(())
+    // Ok(())
 }
 #[hdk_extern]
-pub fn send_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
+pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
@@ -90,10 +200,28 @@ pub fn send_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
         None,
         data,
     )?;
+
+    emit_signal("tip send attempted")?;
+
+    // ZomeCallResponse::NetworkError(err) => {
+    //     Err(
+    //         wasmerror!(
+    //             WasmErrorInner::Guest(format!("There was a network error: {:?}",
+    //             err))
+    //         ),
+    //     )
+    // }
+    //  => {
+    //     Err(
+    //         wasm_error!(WasmErrorInner::Guest(format!("Failed to handle remote call {:?}", response))),
+    //     )
+    // } 
+
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
-            let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-            create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
+            emit_signal("tip sent")?;
+            // let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+            // create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
@@ -101,6 +229,14 @@ pub fn send_notification_tip(data: AnyLinkableHash) -> ExternResult<()> {
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was a network error: {:?}",
                     err))
+                ),
+            )
+        }
+        ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            Err(
+                wasm_error!(
+                    WasmErrorInner::Guest(format!("There was a network error: {:?}{:?}{:?}{:?}{:?}",
+                    a,b,c,d,e))
                 ),
             )
         }

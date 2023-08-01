@@ -1,22 +1,64 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
-#[derive(Serialize, Deserialize, Debug)]
-pub struct AddNotifierForNotificantInput {
-    pub base_notificant: AgentPubKey,
-    pub target_notifier: AgentPubKey,
-}
+
 #[hdk_extern]
-pub fn add_notifier_for_notificant(
-    input: AddNotifierForNotificantInput,
-) -> ExternResult<()> {
+pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
+    let path = Path::from(format!("all_notifiers"));
+    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
+    typed_path.ensure()?;
+    let links = get_links(
+        typed_path.path_entry_hash()?,
+        LinkTypes::AnchorToNotifiers,
+        None,
+    )?;
+    let agents: Vec<AgentPubKey> = links
+        .into_iter()
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .collect();
+    Ok(agents)
+}
+
+// #[derive(Serialize, Deserialize, Debug)]
+// pub struct AddNotifierForNotificantInput {
+//     pub base_notificant: AgentPubKey,
+//     pub target_notifier: AgentPubKey,
+// }
+#[hdk_extern]
+pub fn select_notifier(input: AgentPubKey) -> ExternResult<()> {
     create_link(
-        input.base_notificant.clone(),
-        input.target_notifier.clone(),
+        agent_info()?.agent_latest_pubkey.clone(),
+        input.clone(),
         LinkTypes::NotificantToNotifiers,
         (),
     )?;
     Ok(())
 }
+
+#[hdk_extern]
+pub fn select_first_notifier(_: ()) -> ExternResult<()> {
+    let path = Path::from(format!("all_notifiers"));
+    let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
+    typed_path.ensure()?;
+    let links = get_links(
+        typed_path.path_entry_hash()?,
+        LinkTypes::AnchorToNotifiers,
+        None,
+    )?;
+    let agents: Vec<AgentPubKey> = links
+        .into_iter()
+        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .collect();
+    let notifier = agents[0].clone();
+
+    create_link(
+        agent_info()?.agent_latest_pubkey.clone(),
+        notifier.clone(),
+        LinkTypes::NotificantToNotifiers,
+        (),
+    )?;
+    Ok(())
+}
+
 #[hdk_extern]
 pub fn get_notifiers_for_notificant(
     notificant: AgentPubKey,
