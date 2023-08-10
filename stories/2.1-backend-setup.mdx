@@ -14,12 +14,19 @@ hc scaffold zome notifications
 
 Select the "Integrity/coordinator zome pair" option, and accept the path that the scaffolding tool offers to scaffold the zomes.
 
-2. Add the `hc_zome_notifications_coordinator` and `hc_zome_notifications_integrity` zomes as dependencies with:
+2. In the new notification zome's `coordinator` and `integrity` Cargo.toml files, add:
 
-```bash
-cargo add -p notifications hc_zome_notifications_coordinator
-cargo add -p notifications_integrity hc_zome_notifications_integrity
+```toml
+hc_zome_notifications = { git = "https://github.com/holochain-open-dev/notifications", branch = "develop" }
 ```
+
+and
+
+```toml
+hc_zome_notifications_integrity = { git = "https://github.com/holochain-open-dev/notifications", branch = "develop" }
+```
+respectively
+
 
 3. Go into the newly scaffolded integrity zome's `lib.rs` (its path may be similar to `dnas/lobby/zomes/integrity/notifications/src/lib.rs`) and **replace its contents with**:
 

@@ -1,0 +1,377 @@
+{
+  "schemaVersion": "1.0.0",
+  "readme": "",
+  "modules": [
+    {
+      "kind": "javascript-module",
+      "path": "dist/context.js",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "notificationsStoreContext"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "notificationsStoreContext",
+          "declaration": {
+            "name": "notificationsStoreContext",
+            "module": "dist/context.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/index.js",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./notifications-store"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./notifications-client"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./context"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./types"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/mocks.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsZomeMock",
+          "superclass": {
+            "name": "ZomeMock",
+            "package": "@holochain-open-dev/utils"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsZomeMock",
+          "declaration": {
+            "name": "NotificationsZomeMock",
+            "module": "dist/mocks.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/notifications-client.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsClient",
+          "members": [
+            {
+              "kind": "field",
+              "name": "client",
+              "default": "client"
+            },
+            {
+              "kind": "field",
+              "name": "roleName",
+              "default": "roleName"
+            },
+            {
+              "kind": "field",
+              "name": "zomeName",
+              "default": "zomeName"
+            }
+          ],
+          "superclass": {
+            "name": "ZomeClient",
+            "package": "@holochain-open-dev/utils"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsClient",
+          "declaration": {
+            "name": "NotificationsClient",
+            "module": "dist/notifications-client.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/notifications-store.js",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsStore",
+          "members": [
+            {
+              "kind": "field",
+              "name": "client",
+              "default": "client"
+            }
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsStore",
+          "declaration": {
+            "name": "NotificationsStore",
+            "module": "dist/notifications-store.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/types.js",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/context.ts",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "notificationsStoreContext"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "notificationsStoreContext",
+          "declaration": {
+            "name": "notificationsStoreContext",
+            "module": "src/context.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/index.ts",
+      "declarations": [],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./notifications-store"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./notifications-client"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./context"
+          }
+        },
+        {
+          "kind": "js",
+          "name": "*",
+          "declaration": {
+            "name": "*",
+            "package": "./types"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/mocks.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsZomeMock",
+          "superclass": {
+            "name": "ZomeMock",
+            "package": "@holochain-open-dev/utils"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsZomeMock",
+          "declaration": {
+            "name": "NotificationsZomeMock",
+            "module": "src/mocks.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/notifications-client.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsClient",
+          "superclass": {
+            "name": "ZomeClient",
+            "package": "@holochain-open-dev/utils"
+          }
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsClient",
+          "declaration": {
+            "name": "NotificationsClient",
+            "module": "src/notifications-client.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/notifications-store.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsStore"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsStore",
+          "declaration": {
+            "name": "NotificationsStore",
+            "module": "src/notifications-store.ts"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/types.ts",
+      "declarations": [],
+      "exports": []
+    },
+    {
+      "kind": "javascript-module",
+      "path": "dist/elements/notifications-context.js",
+      "declarations": [
+        {
+          "kind": "variable",
+          "name": "NotificationsContext",
+          "default": "class NotificationsContext extends LitElement {\n    render() {\n        return html `<slot></slot>`;\n    }\n}"
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsContext",
+          "declaration": {
+            "name": "NotificationsContext",
+            "module": "dist/elements/notifications-context.js"
+          }
+        }
+      ]
+    },
+    {
+      "kind": "javascript-module",
+      "path": "src/elements/notifications-context.ts",
+      "declarations": [
+        {
+          "kind": "class",
+          "description": "",
+          "name": "NotificationsContext",
+          "members": [
+            {
+              "kind": "field",
+              "name": "store",
+              "type": {
+                "text": "NotificationsStore"
+              },
+              "attribute": "store"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "store",
+              "type": {
+                "text": "NotificationsStore"
+              },
+              "fieldName": "store"
+            }
+          ],
+          "superclass": {
+            "name": "LitElement",
+            "package": "lit"
+          },
+          "tagName": "notifications-context",
+          "customElement": true
+        }
+      ],
+      "exports": [
+        {
+          "kind": "js",
+          "name": "NotificationsContext",
+          "declaration": {
+            "name": "NotificationsContext",
+            "module": "src/elements/notifications-context.ts"
+          }
+        },
+        {
+          "kind": "custom-element-definition",
+          "name": "notifications-context",
+          "declaration": {
+            "name": "NotificationsContext",
+            "module": "src/elements/notifications-context.ts"
+          }
+        }
+      ]
+    }
+  ]
+}
