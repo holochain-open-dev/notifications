@@ -248,16 +248,21 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     }
 }
 #[hdk_extern]
-pub fn claim_notifier(_: ()) -> ExternResult<()> {
+pub fn claim_notifier(description: String) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+
+    let tag_str = description;
+    let tag_bytes = tag_str.as_bytes().to_vec();
+    let tag = LinkTag(tag_bytes);
+
     create_link(
         typed_path.path_entry_hash()?,
         my_agent_pub_key,
         LinkTypes::AnchorToNotifiers,
-        (),
+        tag,
     )?;
     Ok(())
 }
