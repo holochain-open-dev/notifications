@@ -8,7 +8,7 @@ pub struct AgentPubKeyWithTag {
 }
 
 #[hdk_extern]
-pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
+pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
