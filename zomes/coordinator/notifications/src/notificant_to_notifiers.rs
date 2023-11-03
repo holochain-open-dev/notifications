@@ -1,6 +1,12 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
 
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AgentPubKeyWithTag {
+    pub agent: AgentPubKey,
+    pub tag: String,
+}
+
 #[hdk_extern]
 pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
     let path = Path::from(format!("all_notifiers"));
@@ -11,10 +17,24 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
         LinkTypes::AnchorToNotifiers,
         None,
     )?;
-    let agents: Vec<AgentPubKey> = links
-        .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
-        .collect();
+    let agents: Vec<AgentPubKeyWithTag> = links
+    .into_iter()
+    .map(|link| {
+        let tag = link.tag;
+        let tag_str = String::from_utf8(tag.0).unwrap();
+        let agent = AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap());
+        let agent_with_tag = AgentPubKeyWithTag {
+            agent: agent.clone(),
+            tag: tag_str,
+        };
+        agent_with_tag
+    })
+    .collect();
+
+    // let agents: Vec<AgentPubKey> = links
+    //     .into_iter()
+    //     .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
+    //     .collect();
     Ok(agents)
 }
 
