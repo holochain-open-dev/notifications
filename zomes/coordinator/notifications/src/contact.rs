@@ -27,9 +27,11 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(
-            EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()
-        ))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+
+        // .map(|link| AgentPubKey::from(
+        //     EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()
+        // ))
         .collect();
     let notifier = agents[0].clone();
 
@@ -74,7 +76,7 @@ pub fn send_update_contact(contact: Contact) -> ExternResult<()> {
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
         .collect();
     let notifier = agents[0].clone();
 
@@ -101,7 +103,8 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+        //.map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
     let notifier = agents[0].clone();
 

@@ -13,7 +13,8 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+        //.map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
     Ok(agents)
 }
@@ -46,7 +47,8 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+        //.map(|link| AgentPubKey::from(EntryHash::from(link.target)))
         .collect();
     let notifier = agents[0].clone();
 
@@ -66,7 +68,8 @@ pub fn get_notifiers_for_notificant(
     let links = get_links(notificant, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+        //.map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     Ok(agents)
 }
@@ -76,7 +79,8 @@ pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
+        .map(|link| link.target.into_agent_pub_key().unwrap())
+        //.map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
         .collect();
     Ok(agents[0].clone())
 }
@@ -95,8 +99,10 @@ pub fn remove_notifier_for_notificant(
         None,
     )?;
     for link in links {
-        if AgentPubKey::from(EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap())
-            .eq(&input.target_notifier)
+        let agent_key = link.target.into_agent_pub_key().unwrap();
+        if
+        //AgentPubKey::from(EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap())
+        agent_key.eq(&input.target_notifier)
         {
             delete_link(link.create_link_hash)?;
         }
