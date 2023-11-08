@@ -225,6 +225,8 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
+            emit_signal(format!("There was a network error: {:?}",
+            err))?;
             Err(
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was a network error: {:?}",
@@ -234,14 +236,17 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
         }
         ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
             Err(
+                emit_signal(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+                a,b,c,d,e))?;
                 wasm_error!(
-                    WasmErrorInner::Guest(format!("There was a network error: {:?}{:?}{:?}{:?}{:?}",
+                    WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
                     a,b,c,d,e))
                 ),
             )
         }
         _ => {
             Err(
+                emit_signal(format!("Failed to handle remote call".into()))?;
                 wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
             )
         }
