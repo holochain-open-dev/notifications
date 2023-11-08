@@ -236,8 +236,8 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
         }
         ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
             emit_signal(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+            a,b,c,d,e))?;
             Err(
-                a,b,c,d,e))?;
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
                     a,b,c,d,e))
