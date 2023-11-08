@@ -245,7 +245,7 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             )
         }
         _ => {
-            emit_signal(format!("Failed to handle remote call".into()))?;
+            emit_signal("Failed to handle remote call")?;
             Err(
                 wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
             )
