@@ -66,7 +66,7 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected hash".into()))).unwrap()))
         .collect();
     let notifier = agents[0].clone();
 
