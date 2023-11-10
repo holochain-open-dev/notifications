@@ -40,25 +40,29 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     let notifier = agents[0].clone();
 
     debug!("Calling notifier: {}", notifier);
-    // let zome_call_response = call_remote(
-    //     notifier.clone(),
-    //     "notifications",
-    //     "create_contact".to_string().into(),
-    //     None,
-    //     contact,
-    // )?;
-    let zome_call_response = call(
-        CallTargetCell::OtherCell(CellId::new(dna_info()?.hash, notifier)),
+    let zome_call_response = call_remote(
+        notifier.clone(),
         "notifications",
         "create_contact".to_string().into(),
         None,
         contact,
     )?;
+    // let zome_call_response = call(
+    //     CallTargetCell::OtherCell(CellId::new(dna_info()?.hash, notifier)),
+    //     "notifications",
+    //     "create_contact".to_string().into(),
+    //     None,
+    //     contact,
+    // )?;
     // Ok(())
     match zome_call_response {
         ZomeCallResponse::Ok(_result) => Ok(()),
         ZomeCallResponse::NetworkError(err) => Err(wasm_error!(WasmErrorInner::Guest(format!("There was a network error: {:?}",err)))),
-        ZomeCallResponse::Unauthorized(authorization, _, _, _, _) => Err(wasm_error!(WasmErrorInner::Guest(format!("Remote call Unauthorized: {:?}", authorization).into()))),
+        ZomeCallResponse::Unauthorized(authorization, cellId, zomeName, fnName, agent) => {
+            let msg = format!("Remote call Unauthorized: {:?} | {:?} | {:?} | {:?} | {:?}", authorization, cellId, zomeName, fnName, agent);
+            debug!(msg);
+            Err(wasm_error!(WasmErrorInner::Guest(msg.into())))
+        },
         _ => Err(wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into()))),
     }
 }
