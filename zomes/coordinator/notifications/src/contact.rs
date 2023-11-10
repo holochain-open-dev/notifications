@@ -40,20 +40,20 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     let notifier = agents[0].clone();
 
     debug!("Calling notifier: {}", notifier);
-    let zome_call_response = call_remote(
-        notifier.clone(),
-        "notifications",
-        "create_contact".to_string().into(),
-        None,
-        contact,
-    )?;
-    // let zome_call_response = call(
-    //     CallTargetCell::OtherCell((dna_info()?.hash, notifier)),
+    // let zome_call_response = call_remote(
+    //     notifier.clone(),
     //     "notifications",
     //     "create_contact".to_string().into(),
     //     None,
     //     contact,
     // )?;
+    let zome_call_response = call(
+        CallTargetCell::OtherCell(CellId::new(dna_info()?.hash, notifier)),
+        "notifications",
+        "create_contact".to_string().into(),
+        None,
+        contact,
+    )?;
     // Ok(())
     match zome_call_response {
         ZomeCallResponse::Ok(_result) => Ok(()),
