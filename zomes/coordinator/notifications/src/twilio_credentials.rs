@@ -1,6 +1,18 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
 
+
+
+/// Zome Callback
+#[hdk_extern]
+fn init(_: ()) -> ExternResult<InitCallbackResult> {
+    debug!("*** notifications.init() callback START");
+    let res = grant_unrestricted_capability(());
+    debug!("*** notifications.init() callback DONE - {:?}", res);
+    Ok(InitCallbackResult::Pass)
+}
+
+
 fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     let mut functions: BTreeSet<(ZomeName, FunctionName)> = BTreeSet::new();
     functions.insert((zome_info()?.name, FunctionName(String::from("create_contact"))));

@@ -7,10 +7,10 @@ use hdk::prelude::*;
 use notifications_integrity::*;
 use crate::twilio_credentials::*;
 
-#[hdk_extern]
-pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    Ok(InitCallbackResult::Pass)
-}
+//#[hdk_extern]
+//pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+//     Ok(InitCallbackResult::Pass)
+// }
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
