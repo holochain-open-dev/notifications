@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
+
 fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     let mut functions: BTreeSet<(ZomeName, FunctionName)> = BTreeSet::new();
     functions.insert((zome_info()?.name, FunctionName(String::from("create_contact"))));
@@ -8,18 +9,27 @@ fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     functions.insert((zome_info()?.name, FunctionName(String::from("handle_notification_tip"))));
     Ok(GrantedFunctions::Listed(functions))
 }
+
+
 #[hdk_extern]
 pub fn grant_unrestricted_capability(_: ()) -> ExternResult<()> {
+    debug!("grant_unrestricted_capability() START");
     let functions = functions_to_grant_capability_for()?;
+    debug!("functions: {:?}", functions);
     let access = CapAccess::Unrestricted;
     let capability_grant = CapGrantEntry {
+        tag: "".into(),
+        access: ().into(), // empty access converts to unrestricted
         functions,
-        access,
-        tag: String::from("unrestricted"),
+        //access,
+        //tag: String::from("unrestricted"),
     };
-    create_cap_grant(capability_grant)?;
+    let ah = create_cap_grant(capability_grant)?;
+    debug!("create_cap_grant() {}", ah);
     Ok(())
 }
+
+
 #[hdk_extern]
 pub fn create_twilio_credentials(
     twilio_credentials: TwilioCredentials,
