@@ -225,6 +225,8 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
+            emit_signal(format!("There was a network error: {:?}",
+            err))?;
             Err(
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was a network error: {:?}",
@@ -233,14 +235,17 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             )
         }
         ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            emit_signal(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+            a,b,c,d,e))?;
             Err(
                 wasm_error!(
-                    WasmErrorInner::Guest(format!("There was a network error: {:?}{:?}{:?}{:?}{:?}",
+                    WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
                     a,b,c,d,e))
                 ),
             )
         }
         _ => {
+            emit_signal("Failed to handle remote call")?;
             Err(
                 wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
             )
@@ -248,16 +253,21 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     }
 }
 #[hdk_extern]
-pub fn claim_notifier(_: ()) -> ExternResult<()> {
+pub fn claim_notifier(description: String) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+
+    let tag_str = description;
+    let tag_bytes = tag_str.as_bytes().to_vec();
+    let tag = LinkTag(tag_bytes);
+
     create_link(
         typed_path.path_entry_hash()?,
         my_agent_pub_key,
         LinkTypes::AnchorToNotifiers,
-        (),
+        tag,
     )?;
     Ok(())
 }
