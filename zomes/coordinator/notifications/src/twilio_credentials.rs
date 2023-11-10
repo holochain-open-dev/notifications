@@ -9,7 +9,7 @@ fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     Ok(GrantedFunctions::Listed(functions))
 }
 #[hdk_extern]
-fn grant_unrestricted_capability(_: ()) -> ExternResult<()> {
+pub fn grant_unrestricted_capability(_: ()) -> ExternResult<()> {
     let functions = functions_to_grant_capability_for()?;
     let access = CapAccess::Unrestricted;
     let capability_grant = CapGrantEntry {

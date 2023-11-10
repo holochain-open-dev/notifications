@@ -16,17 +16,18 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     //     .collect();
     // let notifier = agents[0].clone();
 
+    let me: AgentPubKey = agent_info()?.agent_latest_pubkey;
     let info = call_info()?;
     let caller: AgentPubKey = info.provenance;
     if caller != contact.agent_pub_key {
         debug!("Contact agent did not match caller");
+        debug!("     me: {}", me);
         debug!(" caller: {}", caller);
         debug!("contact: {}", contact.agent_pub_key);
         // return Err(
         //     wasm_error!(WasmErrorInner::Guest("Contact agent did not match sender".into())),
         // )
     }
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -118,9 +119,14 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
     Ok(())
 }
 
+
 #[hdk_extern]
 pub fn create_contact(contact: Contact) -> ExternResult<Record> {
-    debug!("=======================================================================> create contact {:?}", contact);
+    debug!("=====> create contact {:?}", contact);
+    debug!("     me: {}", agent_info()?.agent_latest_pubkey);
+    debug!(" caller: {}", AgentPubKey = call_info()?.provenance);
+    debug!("contact: {}", contact.agent_pub_key);
+
     let contact_hash = create_entry(&EntryTypes::Contact(contact.clone()))?;
     let record = get(contact_hash.clone(), GetOptions::default())?
         .ok_or(
@@ -130,6 +136,8 @@ pub fn create_contact(contact: Contact) -> ExternResult<Record> {
         )?;
     Ok(record)
 }
+
+
 #[hdk_extern]
 pub fn get_contacts(agent_pub_keys: Vec<AgentPubKey>) -> ExternResult<Vec<Contact>> {
     emit_signal("agent pub keys below")?;
