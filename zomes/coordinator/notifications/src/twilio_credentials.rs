@@ -7,7 +7,7 @@ use notifications_integrity::*;
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
     debug!("*** notifications.init() callback START");
-    let res = grant_unrestricted_capability(());
+    let res = grant_unrestricted();
     debug!("*** notifications.init() callback DONE - {:?}", res);
     Ok(InitCallbackResult::Pass)
 }
@@ -22,13 +22,16 @@ fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
     Ok(GrantedFunctions::Listed(functions))
 }
 
-
 #[hdk_extern]
 pub fn grant_unrestricted_capability(_: ()) -> ExternResult<()> {
-    debug!("grant_unrestricted_capability() START");
+    return grant_unrestricted();
+}
+
+pub fn grant_unrestricted() -> ExternResult<()> {
+    debug!("grant_unrestricted() START");
     let functions = functions_to_grant_capability_for()?;
     debug!("functions: {:?}", functions);
-    let access = CapAccess::Unrestricted;
+    //let access = CapAccess::Unrestricted;
     let capability_grant = CapGrantEntry {
         tag: "".into(),
         access: ().into(), // empty access converts to unrestricted
