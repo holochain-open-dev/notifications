@@ -19,8 +19,10 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
     let info = call_info()?;
     let caller: AgentPubKey = info.provenance;
     if caller != contact.agent_pub_key {
+        debug!(" caller: {}", caller);
+        debug!("contact: {}", contact.agent_pub_key);
         return Err(
-            wasm_error!(WasmErrorInner::Guest("Contact did not match sender".into())),
+            wasm_error!(WasmErrorInner::Guest("Contact agent did not match sender".into())),
         )
     }
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
