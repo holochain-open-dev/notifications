@@ -12,4 +12,5 @@ hdk = { workspace = true }
 
 serde = { workspace = true }
 
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "hdk-2.2" }
 notifications_integrity = { path = "../../integrity/notifications", package = "hc_zome_notifications_integrity" }

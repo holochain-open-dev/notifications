@@ -1,4 +1,5 @@
 use hdk::prelude::*;
+use zome_utils::{get_all_typed_local, get_typed_from_record, zome_error};
 use notifications_integrity::*;
 
 
@@ -7,7 +8,9 @@ use notifications_integrity::*;
 #[hdk_extern]
 fn init(_: ()) -> ExternResult<InitCallbackResult> {
     debug!("*** notifications.init() callback START");
+    get_grants(())?;
     let res = grant_unrestricted();
+    get_grants(())?;
     debug!("*** notifications.init() callback DONE - {:?}", res);
     Ok(InitCallbackResult::Pass)
 }
@@ -31,18 +34,57 @@ pub fn grant_unrestricted() -> ExternResult<()> {
     debug!("grant_unrestricted() START");
     let functions = functions_to_grant_capability_for()?;
     debug!("functions: {:?}", functions);
-    //let access = CapAccess::Unrestricted;
+    let access = CapAccess::Unrestricted;
     let capability_grant = CapGrantEntry {
-        tag: "".into(),
-        access: ().into(), // empty access converts to unrestricted
+        //tag: "".into(),
+        //access: ().into(), // empty access converts to unrestricted
         functions,
-        //access,
-        //tag: String::from("unrestricted"),
+        access,
+        tag: String::from("unrestricted"),
     };
     let ah = create_cap_grant(capability_grant)?;
     debug!("create_cap_grant() {}", ah);
     Ok(())
 }
+
+
+#[hdk_extern]
+pub fn get_grants(_: ()) -> ExternResult<()> {
+    //let grants = get_all_typed_local::<CapGrantEntry>(EntryType::CapGrant)?;
+    let grants = get_all_CapGrants()?;
+    debug!("get_grants() {}", grants.len());
+    for grant in grants {
+        debug!(" - {:?}", grant);
+    }
+    Ok(())
+}
+
+
+/// Return vec of typed entries of given entry type found in local source chain
+pub fn get_all_CapGrants() -> ExternResult<Vec<CapGrant>>
+{
+    /// Query type
+    let query_args = ChainQueryFilter::default()
+        .include_entries(true)
+        .action_type(ActionType::Create)
+        .entry_type(EntryType::CapGrant);
+    let records = query(query_args)?;
+    /// Get typed for all results
+    let mut grants = Vec::new();
+    for record in records {
+        let RecordEntry::Present(entry) = record.entry() else {
+            return zome_error!("Could not convert record");
+        };
+        let Action::Create(_create) = record.action()
+            else { panic!("Should be a create Action")};
+        let Some(grant) = entry.as_cap_grant()
+            else { panic!("Should be a CapGrant")};
+        grants.push(grant);
+    }
+    /// Done
+    Ok(grants)
+}
+
 
 
 #[hdk_extern]

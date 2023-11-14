@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
+use crate::twilio_credentials::get_grants;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AgentPubKeyWithTag {
@@ -45,6 +46,7 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
 // }
 #[hdk_extern]
 pub fn select_notifier(input: AgentPubKey) -> ExternResult<()> {
+    get_grants(())?;
     create_link(
         agent_info()?.agent_latest_pubkey.clone(),
         input.clone(),
