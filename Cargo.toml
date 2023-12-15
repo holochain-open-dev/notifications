@@ -10,6 +10,6 @@ resolver = "2"
 
 [workspace.dependencies]
 holochain = "0.2.0"
-hdk = "0.2.1"
-hdi = "0.3.1"
+hdk = "0.2.4"
+hdi = "0.3.4"
 serde = { version = "=1.0.163", default-features = false }

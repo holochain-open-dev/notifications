@@ -61,8 +61,7 @@ pub fn get_grants(_: ()) -> ExternResult<()> {
 
 
 /// Return vec of typed entries of given entry type found in local source chain
-pub fn get_all_CapGrants() -> ExternResult<Vec<CapGrant>>
-{
+pub fn get_all_CapGrants() -> ExternResult<Vec<CapGrant>> {
     /// Query type
     let query_args = ChainQueryFilter::default()
         .include_entries(true)
