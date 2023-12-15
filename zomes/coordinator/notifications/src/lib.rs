@@ -2,13 +2,15 @@ pub mod sent_notification;
 pub mod contact;
 pub mod notificant_to_notifiers;
 pub mod twilio_credentials;
+
 use hdk::prelude::*;
 use notifications_integrity::*;
+use crate::twilio_credentials::*;
 
-#[hdk_extern]
-pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
-    Ok(InitCallbackResult::Pass)
-}
+//#[hdk_extern]
+//pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
+//     Ok(InitCallbackResult::Pass)
+// }
 
 #[hdk_entry_helper]
 #[derive(Clone, PartialEq)]
@@ -119,7 +121,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                             emit_signal("this is what is sent to js client")?;
                             emit_signal(output.clone())?;
                             emit_signal("this is what is sent to js client end")?;
-                            
+
                             if output.status == String::from("send") && output.message_id != String::from("") {
                                 // save as sent
                                 let sent_notification: SentNotification = SentNotification {
@@ -175,7 +177,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
     //     //   Err(wasm_error!(WasmErrorInner::Guest(format!("There was an error by call: {:?}", zome_call_response))))
     //     },
     // }
-    
+
     // Ok(())
 }
 #[hdk_extern]
@@ -215,7 +217,7 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     //     Err(
     //         wasm_error!(WasmErrorInner::Guest(format!("Failed to handle remote call {:?}", response))),
     //     )
-    // } 
+    // }
 
     match zome_call_response {
         ZomeCallResponse::Ok(result) => {
@@ -225,6 +227,8 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             Ok(())
         }
         ZomeCallResponse::NetworkError(err) => {
+            emit_signal(format!("There was a network error: {:?}",
+            err))?;
             Err(
                 wasm_error!(
                     WasmErrorInner::Guest(format!("There was a network error: {:?}",
@@ -233,14 +237,17 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
             )
         }
         ZomeCallResponse::Unauthorized(a,b,c,d,e) => {
+            emit_signal(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
+            a,b,c,d,e))?;
             Err(
                 wasm_error!(
-                    WasmErrorInner::Guest(format!("There was a network error: {:?}{:?}{:?}{:?}{:?}",
+                    WasmErrorInner::Guest(format!("There was an unauthorized error: {:?}{:?}{:?}{:?}{:?}",
                     a,b,c,d,e))
                 ),
             )
         }
         _ => {
+            emit_signal("Failed to handle remote call")?;
             Err(
                 wasm_error!(WasmErrorInner::Guest("Failed to handle remote call".into())),
             )
@@ -248,17 +255,25 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     }
 }
 #[hdk_extern]
-pub fn claim_notifier(_: ()) -> ExternResult<()> {
+pub fn claim_notifier(description: String) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let my_agent_pub_key: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+
+    let tag_str = description;
+    let tag_bytes = tag_str.as_bytes().to_vec();
+    let tag = LinkTag(tag_bytes);
+
     create_link(
         typed_path.path_entry_hash()?,
         my_agent_pub_key,
         LinkTypes::AnchorToNotifiers,
-        (),
+        tag,
     )?;
+
+    grant_unrestricted_capability(())?;
+
     Ok(())
 }
 #[hdk_extern]
