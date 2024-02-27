@@ -1,8 +1,15 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
+use crate::twilio_credentials::get_grants;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct AgentPubKeyWithTag {
+    pub agent: AgentPubKey,
+    pub tag: String,
+}
 
 #[hdk_extern]
-pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
+pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
@@ -11,10 +18,24 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
         LinkTypes::AnchorToNotifiers,
         None,
     )?;
-    let agents: Vec<AgentPubKey> = links
-        .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
-        .collect();
+    let agents: Vec<AgentPubKeyWithTag> = links
+    .into_iter()
+    .map(|link| {
+        let tag = link.tag;
+        let tag_str = String::from_utf8(tag.0).unwrap();
+        let agent = AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap());
+        let agent_with_tag = AgentPubKeyWithTag {
+            agent: agent.clone(),
+            tag: tag_str,
+        };
+        agent_with_tag
+    })
+    .collect();
+
+    // let agents: Vec<AgentPubKey> = links
+    //     .into_iter()
+    //     .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
+    //     .collect();
     Ok(agents)
 }
 
@@ -25,6 +46,7 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKey>> {
 // }
 #[hdk_extern]
 pub fn select_notifier(input: AgentPubKey) -> ExternResult<()> {
+    get_grants(())?;
     create_link(
         agent_info()?.agent_latest_pubkey.clone(),
         input.clone(),
@@ -46,7 +68,7 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
-        .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
+        .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected hash".into()))).unwrap()))
         .collect();
     let notifier = agents[0].clone();
 

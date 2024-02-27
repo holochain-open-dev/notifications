@@ -35,4 +35,4 @@ export type NotificationsSignal = {
   link_type: string;
 };
 
-export type EntryTypes = {};
+export type EntryTypes = object;
