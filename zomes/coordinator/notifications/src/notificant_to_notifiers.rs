@@ -59,11 +59,17 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
+
     let links = get_links(
         typed_path.path_entry_hash()?,
         LinkTypes::AnchorToNotifiers,
         None,
     )?;
+
+    if links.len() == 0 {
+        return Err(WasmError::Guest("No notifiers found".into()));
+    }
+
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
@@ -94,6 +100,9 @@ pub fn get_notifiers_for_notificant(
 pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    if links.len() == 0 {
+        return Err(WasmError::Guest("No notifiers found".into()));
+    }
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))

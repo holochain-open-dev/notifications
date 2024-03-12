@@ -1,39 +1,37 @@
 {
-  description = "Template for Holochain app development";
+  description = "Convergent group decision making";
 
   inputs = {
-    nixpkgs.follows = "holochain/nixpkgs";
+    versions.url  = "github:holochain/holochain?dir=versions/0_2";
 
-    holochain = {
-      url = "github:holochain/holochain";
-      inputs.versions.url = "github:holochain/holochain/?dir=versions/0_1";
-    };
+    holochain-flake.url = "github:holochain/holochain";
+    holochain-flake.inputs.versions.follows = "versions";
+
+    nixpkgs.follows = "holochain-flake/nixpkgs";
+    flake-parts.follows = "holochain-flake/flake-parts";
   };
 
-  outputs = inputs @ { ... }:
-    inputs.holochain.inputs.flake-parts.lib.mkFlake
+  outputs = inputs:
+    inputs.flake-parts.lib.mkFlake
       {
         inherit inputs;
       }
       {
-        systems = builtins.attrNames inputs.holochain.devShells;
+        systems = builtins.attrNames inputs.holochain-flake.devShells;
         perSystem =
-          { config
+          { inputs'
+          , config
           , pkgs
           , system
           , ...
           }: {
             devShells.default = pkgs.mkShell {
-              inputsFrom = [ inputs.holochain.devShells.${system}.holonix ];
+              inputsFrom = [ inputs'.holochain-flake.devShells.holonix ];
               packages = [
                 pkgs.nodejs-18_x
-                pkgs.cargo-nextest
+                # more packages go here
               ];
-              shellHook = ''
-                unset CARGO_TARGET_DIR
-                unset CARGO_HOME
-              '';
-};
+            };
           };
       };
 }
