@@ -67,7 +67,11 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     )?;
 
     if links.len() == 0 {
-        return Err(WasmErrorInner::Guest("No notifiers found".into()));
+        return Err(
+            wasm_error!(
+                WasmErrorInner::Guest("No notifiers found".to_string())
+            ),
+        );
     }
 
     let agents: Vec<AgentPubKey> = links
@@ -101,7 +105,11 @@ pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
     let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
     if links.len() == 0 {
-        return Err(WasmErrorInner::Guest("No notifiers found".into()));
+        return Err(
+            wasm_error!(
+                WasmErrorInner::Guest("No notifiers found".to_string())
+            ),
+        );
     }
     let agents: Vec<AgentPubKey> = links
         .into_iter()
