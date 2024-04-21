@@ -1,5 +1,7 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
+use zome_utils::*;
+
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
     // let path = Path::from(format!("all_notifiers"));
@@ -24,7 +26,7 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(
@@ -71,7 +73,7 @@ pub fn send_update_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
@@ -98,7 +100,7 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))

@@ -4,6 +4,7 @@ pub mod notificant_to_notifiers;
 pub mod twilio_credentials;
 use hdk::prelude::*;
 use notifications_integrity::*;
+use zome_utils::*;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -184,9 +185,11 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let links = get_links(
-        typed_path.path_entry_hash()?,
-        LinkTypes::AnchorToNotifiers,
-        None,
+        link_input(
+            typed_path.path_entry_hash()?,
+            LinkTypes::AnchorToNotifiers,
+            None,
+        )
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -277,9 +280,11 @@ pub fn find_a_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let links = get_links(
-        typed_path.path_entry_hash()?,
-        LinkTypes::AnchorToNotifiers,
-        None,
+        link_input(
+            typed_path.path_entry_hash()?,
+            LinkTypes::AnchorToNotifiers,
+            None,
+        )
     )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()

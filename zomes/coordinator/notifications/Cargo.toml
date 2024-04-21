@@ -13,3 +13,5 @@ hdk = { workspace = true }
 serde = { workspace = true }
 
 notifications_integrity = { path = "../../integrity/notifications", package = "hc_zome_notifications_integrity" }
+
+zome_utils.workspace = true

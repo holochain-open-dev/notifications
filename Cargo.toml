@@ -6,10 +6,12 @@ opt-level = "z"
 
 [workspace]
 members = ["zomes/coordinator/*", "zomes/integrity/*"]
+
 resolver = "2"
 
 [workspace.dependencies]
-holochain = "0.2.0"
-hdk = "0.2"
-hdi = "0.3"
+hdi = "0.4.0-beta-dev.30"
+hdk = "0.3.0-beta-dev.34"
 serde = "1"
+
+zome_utils = { git = "https://github.com/ddd-mtl/zome-utils", branch = "hdk-3.0" }

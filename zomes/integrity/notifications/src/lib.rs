@@ -9,14 +9,14 @@ pub use twilio_credentials::*;
 use hdi::prelude::*;
 #[derive(Serialize, Deserialize)]
 #[serde(tag = "type")]
-#[hdk_entry_defs]
+#[hdk_entry_types]
 #[unit_enum(UnitEntryTypes)]
 pub enum EntryTypes {
-    #[entry_def(name = "TwilioCredentials", visibility = "private")]
+    #[entry_type(name = "TwilioCredentials", visibility = "private")]
     TwilioCredentials(TwilioCredentials),
-    #[entry_def(name = "Contact", visibility = "private")]
+    #[entry_type(name = "Contact", visibility = "private")]
     Contact(Contact),
-    #[entry_def(name = "SentNotification", visibility = "private")]
+    #[entry_type(name = "SentNotification", visibility = "private")]
     SentNotification(SentNotification),
 }
 #[derive(Serialize, Deserialize)]

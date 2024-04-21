@@ -1,5 +1,6 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
+use zome_utils::*;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AgentPubKeyWithTag {
@@ -13,9 +14,11 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
     let links = get_links(
-        typed_path.path_entry_hash()?,
-        LinkTypes::AnchorToNotifiers,
-        None,
+        link_input(
+            typed_path.path_entry_hash()?,
+            LinkTypes::AnchorToNotifiers,
+            None,
+        )
     )?;
     let agents: Vec<AgentPubKeyWithTag> = links
     .into_iter()
@@ -61,9 +64,11 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     typed_path.ensure()?;
 
     let links = get_links(
-        typed_path.path_entry_hash()?,
-        LinkTypes::AnchorToNotifiers,
-        None,
+        link_input(
+            typed_path.path_entry_hash()?,
+            LinkTypes::AnchorToNotifiers,
+            None,
+        )
     )?;
 
     if links.len() == 0 {
@@ -93,7 +98,11 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
 pub fn get_notifiers_for_notificant(
     notificant: AgentPubKey,
 ) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(notificant, LinkTypes::NotificantToNotifiers, None)?;
+    let links = get_links(
+        link_input(
+            notificant, LinkTypes::NotificantToNotifiers, None
+        )
+    )?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
@@ -103,7 +112,11 @@ pub fn get_notifiers_for_notificant(
 #[hdk_extern]
 pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
-    let links = get_links(me, LinkTypes::NotificantToNotifiers, None)?;
+    let links = get_links(
+        link_input(
+            me, LinkTypes::NotificantToNotifiers, None
+        )
+    )?;
     if links.len() == 0 {
         return Err(
             wasm_error!(
@@ -127,9 +140,11 @@ pub fn remove_notifier_for_notificant(
     input: RemoveNotifierForNotificantInput,
 ) -> ExternResult<()> {
     let links = get_links(
-        input.base_notificant.clone(),
-        LinkTypes::NotificantToNotifiers,
-        None,
+        link_input(
+            input.base_notificant.clone(),
+            LinkTypes::NotificantToNotifiers,
+            None,
+        )
     )?;
     for link in links {
         if AgentPubKey::from(EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap())
