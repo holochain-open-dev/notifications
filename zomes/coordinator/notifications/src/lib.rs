@@ -2,9 +2,10 @@ pub mod sent_notification;
 pub mod contact;
 pub mod notificant_to_notifiers;
 pub mod twilio_credentials;
+pub mod utils;
 use hdk::prelude::*;
 use notifications_integrity::*;
-use zome_utils::*;
+use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {

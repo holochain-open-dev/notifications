@@ -18,8 +18,6 @@ pub fn validate_create_twilio_credentials(
 pub fn validate_update_twilio_credentials(
     _action: Update,
     _twilio_credentials: TwilioCredentials,
-    _original_action: EntryCreationAction,
-    _original_twilio_credentials: TwilioCredentials,
 ) -> ExternResult<ValidateCallbackResult> {
     Ok(ValidateCallbackResult::Valid)
 }

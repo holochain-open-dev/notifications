@@ -19,8 +19,6 @@ pub fn validate_create_contact(
 pub fn validate_update_contact(
     _action: Update,
     _contact: Contact,
-    _original_action: EntryCreationAction,
-    _original_contact: Contact,
 ) -> ExternResult<ValidateCallbackResult> {
     // if (original_action.author().clone() != action.author.clone()) || (action.author.clone() != contact.agent_pub_key) {
     //     return Ok(ValidateCallbackResult::Invalid("Only the notificant can do this".into()));

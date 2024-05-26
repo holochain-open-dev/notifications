@@ -1,6 +1,6 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
-use zome_utils::*;
+use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
