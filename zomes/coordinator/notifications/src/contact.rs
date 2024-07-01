@@ -4,25 +4,11 @@ use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
-    // let path = Path::from(format!("all_notifiers"));
-    // let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
-    // typed_path.ensure()?;
-    // let links = get_links(
-    //     typed_path.path_entry_hash()?,
-    //     LinkTypes::AnchorToNotifiers,
-    //     None,
-    // )?;
-    // let agents: Vec<AgentPubKey> = links
-    //     .into_iter()
-    //     .map(|link| AgentPubKey::from(EntryHash::from(link.target)))
-    //     .collect();
-    // let notifier = agents[0].clone();
-
     let info = call_info()?;
     let caller: AgentPubKey = info.provenance;
     if caller != contact.agent_pub_key {
         return Err(
-            wasm_error!(WasmErrorInner::Guest("Contact did not match sender".into())),
+            wasm_error!(WasmErrorInner::Guest(format!("Contact did not match sender. Caller: {:?}, Contact: {:?}", caller, contact))),
         )
     }
     let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
