@@ -4,8 +4,8 @@ use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
-    let info = call_info()?;
-    let caller: AgentPubKey = info.provenance;
+    let info = agent_info()?;
+    let caller: AgentPubKey = info.agent_latest_pubkey;
     if caller != contact.agent_pub_key {
         return Err(
             wasm_error!(WasmErrorInner::Guest(format!("Contact did not match sender. Caller: {:?}, Contact: {:?}", caller, contact))),
