@@ -31,6 +31,7 @@ pub struct NotificationTip {
   pub extra_context: String,
   pub message_id: String,
   pub destination: String,
+  pub delay_until: Option<Timestamp>,
 }
 
 #[derive(Serialize, Deserialize, Debug)]
@@ -116,6 +117,7 @@ pub fn handle_notification_tip(data: NotificationTip) -> ExternResult<()> {
                                 extra_context: tip.extra_context,
                                 message_id: message_id.clone(),
                                 destination: String::from("notifier_service"),
+                                delay_until: tip.delay_until,
                             };
 
                             emit_signal("this is what is sent to js client")?;

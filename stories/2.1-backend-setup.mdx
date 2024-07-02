@@ -50,6 +50,7 @@ pub struct NotificationTip {
   pub extra_context: String, //Any extra data that needs to be passed to the custom_handle_notification_tip function. For example, a hash of an entry.
   pub message_id: String, //A unique identifier of the message to send. For instance, a string containing a timestamp and message content. This is used to automtatically prevent duplicate messages. If left blank, there will be no prevention of duplicate notifications.
   pub destination: String, //Used for debugging. The name of the function that the data is being sent to.
+  pub delay_until: Option<Timestamp>
 }
 
 #[hdk_extern]
