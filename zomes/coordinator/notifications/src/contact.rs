@@ -5,13 +5,13 @@ use crate::utils::link_input;
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
     let info = agent_info()?;
-    let caller: AgentPubKey = info.agent_latest_pubkey;
+    let caller: AgentPubKey = info.agent_initial_pubkey;
     if caller != contact.agent_pub_key {
         return Err(
             wasm_error!(WasmErrorInner::Guest(format!("Contact did not match sender. Caller: {:?}, Contact: {:?}", caller, contact))),
         )
     }
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
     let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -58,7 +58,7 @@ pub fn send_update_contact(contact: Contact) -> ExternResult<()> {
             wasm_error!(WasmErrorInner::Guest("Contact did not match sender".into())),
         )
     }
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
     let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
@@ -85,7 +85,7 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
             wasm_error!(WasmErrorInner::Guest("Contact did not match sender".into())),
         )
     }
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
     let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()

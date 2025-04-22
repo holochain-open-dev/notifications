@@ -49,7 +49,7 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
 #[hdk_extern]
 pub fn select_notifier(input: AgentPubKey) -> ExternResult<()> {
     create_link(
-        agent_info()?.agent_latest_pubkey.clone(),
+        agent_info()?.agent_initial_pubkey.clone(),
         input.clone(),
         LinkTypes::NotificantToNotifiers,
         (),
@@ -86,7 +86,7 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     let notifier = agents[0].clone();
 
     create_link(
-        agent_info()?.agent_latest_pubkey.clone(),
+        agent_info()?.agent_initial_pubkey.clone(),
         notifier.clone(),
         LinkTypes::NotificantToNotifiers,
         (),
@@ -111,7 +111,7 @@ pub fn get_notifiers_for_notificant(
 }
 #[hdk_extern]
 pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
-    let me: AgentPubKey = agent_info()?.agent_latest_pubkey.into();
+    let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
     let links = get_links(
         link_input(
             me, LinkTypes::NotificantToNotifiers, None
