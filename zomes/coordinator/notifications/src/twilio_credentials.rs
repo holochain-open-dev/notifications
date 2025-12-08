@@ -1,7 +1,7 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
 fn functions_to_grant_capability_for() -> ExternResult<GrantedFunctions> {
-    let mut functions: BTreeSet<(ZomeName, FunctionName)> = BTreeSet::new();
+    let mut functions: HashSet<(ZomeName, FunctionName)> = HashSet::new();
     functions.insert((zome_info()?.name, FunctionName(String::from("create_contact"))));
     functions.insert((zome_info()?.name, FunctionName(String::from("update_contact"))));
     functions.insert((zome_info()?.name, FunctionName(String::from("delete_contact"))));

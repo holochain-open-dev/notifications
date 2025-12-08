@@ -9,7 +9,7 @@ name = "hc_zome_notifications_coordinator"
 
 [dependencies]
 hdk = { workspace = true }
-
+holochain_serialized_bytes = { workspace = true }
 serde = { workspace = true }
 
 notifications_integrity = { path = "../../integrity/notifications", package = "hc_zome_notifications_integrity" }

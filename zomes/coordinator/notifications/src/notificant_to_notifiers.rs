@@ -1,6 +1,5 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
-use crate::utils::link_input;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct AgentPubKeyWithTag {
@@ -13,13 +12,10 @@ pub fn list_notifiers(_: ()) -> ExternResult<Vec<AgentPubKeyWithTag>> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
-    let links = get_links(
-        link_input(
+    let links = get_links(LinkQuery::try_new(
             typed_path.path_entry_hash()?,
             LinkTypes::AnchorToNotifiers,
-            None,
-        )
-    )?;
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKeyWithTag> = links
     .into_iter()
     .map(|link| {
@@ -63,13 +59,10 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
 
-    let links = get_links(
-        link_input(
+    let links = get_links(LinkQuery::try_new(
             typed_path.path_entry_hash()?,
             LinkTypes::AnchorToNotifiers,
-            None,
-        )
-    )?;
+        )?, GetStrategy::Local)?;
 
     if links.len() == 0 {
         return Err(
@@ -98,11 +91,10 @@ pub fn select_first_notifier(_: ()) -> ExternResult<()> {
 pub fn get_notifiers_for_notificant(
     notificant: AgentPubKey,
 ) -> ExternResult<Vec<AgentPubKey>> {
-    let links = get_links(
-        link_input(
-            notificant, LinkTypes::NotificantToNotifiers, None
-        )
-    )?;
+    let links = get_links(LinkQuery::try_new(
+            notificant,
+            LinkTypes::NotificantToNotifiers,
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
@@ -112,11 +104,10 @@ pub fn get_notifiers_for_notificant(
 #[hdk_extern]
 pub fn get_my_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
-    let links = get_links(
-        link_input(
-            me, LinkTypes::NotificantToNotifiers, None
-        )
-    )?;
+    let links = get_links(LinkQuery::try_new(
+            me,
+            LinkTypes::NotificantToNotifiers,
+        )?, GetStrategy::Local)?;
     if links.len() == 0 {
         return Err(
             wasm_error!(
@@ -139,18 +130,15 @@ pub struct RemoveNotifierForNotificantInput {
 pub fn remove_notifier_for_notificant(
     input: RemoveNotifierForNotificantInput,
 ) -> ExternResult<()> {
-    let links = get_links(
-        link_input(
+    let links = get_links(LinkQuery::try_new(
             input.base_notificant.clone(),
             LinkTypes::NotificantToNotifiers,
-            None,
-        )
-    )?;
+        )?, GetStrategy::Local)?;
     for link in links {
         if AgentPubKey::from(EntryHash::try_from(link.target.clone()).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap())
             .eq(&input.target_notifier)
         {
-            delete_link(link.create_link_hash)?;
+            delete_link(link.create_link_hash, GetOptions::default())?;
         }
     }
     Ok(())

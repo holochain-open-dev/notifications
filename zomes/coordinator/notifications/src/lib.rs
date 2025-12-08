@@ -5,7 +5,6 @@ pub mod twilio_credentials;
 pub mod utils;
 use hdk::prelude::*;
 use notifications_integrity::*;
-use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn init(_: ()) -> ExternResult<InitCallbackResult> {
@@ -187,13 +186,10 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
-    let links = get_links(
-        link_input(
+    let links = get_links(LinkQuery::try_new(
             typed_path.path_entry_hash()?,
             LinkTypes::AnchorToNotifiers,
-            None,
-        )
-    )?;
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))
@@ -224,7 +220,7 @@ pub fn send_notification_tip(data: NotificationTip) -> ExternResult<()> {
     // } 
 
     match zome_call_response {
-        ZomeCallResponse::Ok(result) => {
+        ZomeCallResponse::Ok(_result) => {
             emit_signal("tip sent")?;
             // let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
             // create_link(me, notifier, LinkTypes::NotificantToNotifiers, ())?;
@@ -282,13 +278,10 @@ pub fn find_a_notifier(_: ()) -> ExternResult<AgentPubKey> {
     let path = Path::from(format!("all_notifiers"));
     let typed_path = path.typed(LinkTypes::AnchorToNotifiers)?;
     typed_path.ensure()?;
-    let links = get_links(
-        link_input(
+    let links = get_links(LinkQuery::try_new(
             typed_path.path_entry_hash()?,
             LinkTypes::AnchorToNotifiers,
-            None,
-        )
-    )?;
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected actionhash".into()))).unwrap()))

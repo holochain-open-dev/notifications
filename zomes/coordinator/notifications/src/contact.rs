@@ -1,6 +1,5 @@
 use hdk::prelude::*;
 use notifications_integrity::*;
-use crate::utils::link_input;
 
 #[hdk_extern]
 pub fn send_contact(contact: Contact) -> ExternResult<()> {
@@ -12,7 +11,10 @@ pub fn send_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
-    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
+    let links = get_links(LinkQuery::try_new(
+            me,
+            LinkTypes::NotificantToNotifiers,
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(
@@ -59,14 +61,17 @@ pub fn send_update_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
-    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
+    let links = get_links(LinkQuery::try_new(
+            me,
+            LinkTypes::NotificantToNotifiers,
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
         .collect();
     let notifier = agents[0].clone();
 
-    let zome_call_response = call_remote(
+    let _zome_call_response = call_remote(
         notifier.clone(),
         "notifications",
         FunctionName(String::from("update_contact")),
@@ -86,14 +91,17 @@ pub fn send_delete_contact(contact: Contact) -> ExternResult<()> {
         )
     }
     let me: AgentPubKey = agent_info()?.agent_initial_pubkey.into();
-    let links = get_links(link_input(me, LinkTypes::NotificantToNotifiers, None))?;
+    let links = get_links(LinkQuery::try_new(
+            me,
+            LinkTypes::NotificantToNotifiers,
+        )?, GetStrategy::Local)?;
     let agents: Vec<AgentPubKey> = links
         .into_iter()
         .map(|link| AgentPubKey::from(EntryHash::try_from(link.target).map_err(|_| wasm_error!(WasmErrorInner::Guest("Expected entryhash".into()))).unwrap()))
         .collect();
     let notifier = agents[0].clone();
 
-    let zome_call_response = call_remote(
+    let _zome_call_response = call_remote(
         notifier.clone(),
         "notifications",
         FunctionName(String::from("delete_contact")),
